@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:afxp="urn:afirma:dss:1.0:profile:XSS:schema" xmlns:ds="http://www.w3.org/2000/09/xmldsig#" xmlns:dss="urn:oasis:names:tc:dss:1.0:core:schema" targetNamespace="urn:afirma:dss:1.0:profile:XSS:schema" elementFormDefault="qualified">
+	<xs:annotation>
+		<xs:documentation xml:lang="es">Este esquema define los componentes que forman el perfil XSS de @Firma</xs:documentation>
+	</xs:annotation>
+	<xs:import namespace="http://www.w3.org/2000/09/xmldsig#" schemaLocation="http://www.w3.org/TR/2002/REC-xmldsig-core-20020212/xmldsig-core-schema.xsd"/>
+	<xs:import namespace="urn:oasis:names:tc:dss:1.0:core:schema" schemaLocation="http://docs.oasis-open.org/dss/v1.0/oasis-dss-core-schema-v1.0-os.xsd"/>
+	<!-- Modo de Actualización de Firmas-->
+	<xs:element name=" UpdatedSignatureMode" type="xs:anyURI"/>
+	<!-- Identificador de Referencia -->
+	<xs:element name="ReferenceId" type="xs:string"/>
+	<!-- Algoritmo de Hash -->
+	<xs:element name="HashAlgorithm" type="xs:anyURI"/>
+	<!-- Informacion Adicional del Documento de Entrada -->
+	<xs:element name="AdditionalDocumentInfo">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="DocumentName" type="xs:string"/>
+				<xs:element name="DocumentType" type="xs:string"/>
+			</xs:sequence>
+			<xs:attribute name="WhichDocument" type="xs:IDREF" use="optional"/>
+		</xs:complexType>
+	</xs:element>
+	<!-- Tipo Identificador Único -->
+	<xs:complexType name="ArchiveIdType">
+		<xs:simpleContent>
+			<xs:extension base="xs:string">
+				<xs:attribute name="ID" type="xs:ID" use="optional"/>
+			</xs:extension>
+		</xs:simpleContent>
+	</xs:complexType>
+	<!-- Identificador de Firma Custodiada -->
+	<xs:element name="SignatureArchiveId" type="afxp:ArchiveIdType"/>
+	<!-- Identificador de Documento -->
+	<xs:element name="DocumentArchiveId" type="afxp:ArchiveIdType"/>
+	<!-- Firmante Objetivo -->
+	<xs:element name="TargetSigner" type="xs:base64Binary"/>
+	<!-- Modo de Firma XML -->
+	<xs:element name="XMLSignatureMode" type="xs:anyURI"/>
+	<!-- Campo Mapeado del Certificado -->
+	<xs:complexType name="ReadableFieldType">
+		<xs:sequence>
+			<xs:element name="FieldIdentity" type="xs:string"/>
+			<xs:element name="FieldValue" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
+	<!-- Componente para solicitar el Mapeo del Certificado Firmante-->
+	<xs:element name="ReturnReadableCertificateInfo"/>
+	<!-- Elemento que contiene el Mapeo de un Certificado-->
+	<xs:element name="ReadableCertificateInfo">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="ReadableField" type="afxp:ReadableFieldType" minOccurs="0" maxOccurs="unbounded"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<!-- Componente para solicitar información adicional no contemplada en el perfil VR -->
+	<xs:element name="AdditionalReportOption">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="afxp:IncludeProperties"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<!-- Componente para solicitar información sobre atributos firmados o no firmados-->
+	<xs:element name="IncludeProperties">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="IncludeProperty" type="afxp:IncludePropertyType" minOccurs="1" maxOccurs="unbounded"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:complexType name="IncludePropertyType">
+		<xs:sequence>
+			<xs:element name="DetailProperty" type="xs:anyURI" minOccurs="0"/>
+		</xs:sequence>
+		<xs:attribute name="Type" type="xs:anyURI" use="required"/>
+	</xs:complexType>
+	<!-- Componente para solicitar información sobre los datos firmados -->
+	<xs:element name="ReturnSignedDataInfo"/>
+	<!-- Componente que contiene la información sobre los datos firmados -->
+	<xs:element name="SignedDataInfo">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="DataInfo" type="afxp:DataInfoType" maxOccurs="unbounded"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:complexType name="DataInfoType">
+		<xs:choice>
+			<xs:element name="ContentData" type="afxp:ContentDataType"/>
+			<xs:element ref="dss:DocumentHash"/>
+			<xs:element name="SignedDataRefs" type="afxp:SignedDataRefsType"/>
+		</xs:choice>
+		<xs:attribute name="ID" type="xs:ID"/>
+	</xs:complexType>
+	<xs:complexType name="ContentDataType">
+		<xs:sequence>
+			<xs:element name="BinaryValue" type="xs:base64Binary"/>
+			<xs:element name="MimeType" type="xs:string" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="SignedDataRefsType">
+		<xs:sequence>
+			<xs:element name="SignedDataRef" type="afxp:SignedDataRefType" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="SignedDataRefType">
+		<xs:sequence>
+			<xs:element name="XPath" type="xs:string"/>
+			<xs:element name="ReferenceType" type="xs:anyURI" minOccurs="0"/>
+			<xs:element name="MimeType" type="xs:string" minOccurs="0"/>
+			<xs:element name="Encoding" type="xs:string" minOccurs="0"/>
+			<xs:element ref="afxp:HashAlgorithm" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+	<!-- Referencia a los datos firmados por un firmante -->
+	<xs:element name="DataInfoRef">
+		<xs:complexType>
+			<xs:attribute name="WhichDataInfo" type="xs:IDREF" use="required"/>
+		</xs:complexType>
+	</xs:element>
+	<!-- Componente que contiene la fecha estimada de procesamiento de una petición asíncrona -->
+	<xs:element name="ResponseTime" type="xs:dateTime"/>
+	<!-- Componente utilizado para obtener el documento de la política -->
+	<xs:element name="ReturnSigPolicyDocument">
+		<xs:complexType>
+			<xs:attribute name="Type" type="xs:anyURI" use="optional"/>
+		</xs:complexType>
+	</xs:element>
+	<!-- Componente que devuelve el documento de la política-->
+	<xs:element name="SigPolicyDocument">
+		<xs:complexType>
+			<xs:simpleContent>
+				<xs:extension base="xs:base64Binary">
+					<xs:attribute name="Type" type="xs:anyURI" use="optional"/>
+					<xs:attribute name="MimeType" type="xs:string" use="optional"/>
+				</xs:extension>
+			</xs:simpleContent>
+		</xs:complexType>
+	</xs:element>
+	<!-- Componente de Petición en Lote -->
+	<xs:element name="BatchRequest">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="dss:OptionalInputs" minOccurs="0"/>
+				<xs:element ref="afxp:Requests"/>
+			</xs:sequence>
+			<xs:attribute name="RequestID" type="xs:string" use="optional"/>
+			<xs:attribute name="Profile" type="xs:anyURI" use="optional"/>
+			<xs:attribute name="Type" type="xs:anyURI" use="optional"/>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="Requests">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="dss:VerifyRequest" maxOccurs="unbounded"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<!-- Componente de Respuesta en Lote -->
+	<xs:element name="BatchResponse" type="afxp:BatchResponseType"/>
+	<xs:complexType name="BatchResponseType">
+		<xs:complexContent>
+			<xs:extension base="dss:ResponseBaseType">
+				<xs:sequence>
+					<xs:element ref="afxp:Responses"/>
+				</xs:sequence>
+				<xs:attribute name="Type" use="optional"/>
+			</xs:extension>
+		</xs:complexContent>
+	</xs:complexType>
+	<xs:element name="Responses">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="dss:VerifyResponse" maxOccurs="unbounded"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="IgnoreGracePeriod">
+		<xs:complexType/>
+	</xs:element>
+</xs:schema>

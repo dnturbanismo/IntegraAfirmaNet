@@ -1,0 +1,26 @@
+﻿using IntegraAfirmaNet.Authentication;
+using Microsoft.Web.Services3;
+using Microsoft.Web.Services3.Design;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Security.Cryptography.X509Certificates;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace IntegraAfirmaNet.SignatureFramework
+{
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    public abstract class AfirmaBaseSoapClient : WebServicesClientProtocol
+    {
+        public AfirmaBaseSoapClient(string url, Identity identity, X509Certificate2 serverCert)
+        {
+            this.Url = url;
+            Policy policy = new Policy();
+            policy.Assertions.Add(identity.GetPolicyAssertion());
+            policy.Assertions.Add(new AfirmaPolicyAssertions.AfirmaResponseAssertion(serverCert));
+
+            this.SetPolicy(policy);            
+        }
+    }
+}
