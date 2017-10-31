@@ -7,6 +7,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 using IntegraAfirmaNet.SignatureFramework;
+using IntegraAfirmaNet.Soap.Assertions;
 
 namespace IntegraAfirmaNet.Authentication
 {
@@ -79,12 +80,12 @@ namespace IntegraAfirmaNet.Authentication
             if (_authenticationType == AuthenticationType.UsernameToken)
             {
                 UsernameToken token = new UsernameToken(_user, _password, _passwordMode);
-                assertion = new AfirmaPolicyAssertions.UsernameTokenSoapAssertion(token);
+                assertion = new UsernameTokenSoapAssertion(token);
             }
             else
             {
                 X509SecurityToken token = new X509SecurityToken(_certificate);
-                assertion = new AfirmaPolicyAssertions.X509SecurityTokenSoapAssertion(token);
+                assertion = new X509SecurityTokenSoapAssertion(token);
             }
 
             return assertion;

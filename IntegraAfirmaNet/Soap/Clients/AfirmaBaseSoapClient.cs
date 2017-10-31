@@ -1,4 +1,5 @@
 ﻿using IntegraAfirmaNet.Authentication;
+using IntegraAfirmaNet.Soap.Assertions;
 using Microsoft.Web.Services3;
 using Microsoft.Web.Services3.Design;
 using System;
@@ -18,7 +19,7 @@ namespace IntegraAfirmaNet.SignatureFramework
             this.Url = url;
             Policy policy = new Policy();
             policy.Assertions.Add(identity.GetPolicyAssertion());
-            policy.Assertions.Add(new AfirmaPolicyAssertions.AfirmaResponseAssertion(serverCert));
+            policy.Assertions.Add(new AfirmaResponseAssertion(serverCert));
 
             this.SetPolicy(policy);            
         }

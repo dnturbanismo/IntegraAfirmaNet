@@ -51,10 +51,12 @@
     <Compile Include="Authentication\Identity.cs" />
     <Compile Include="Schemas\ValidarCertificado.cs" />
     <Compile Include="Services\AfirmaService.cs" />
-    <Compile Include="SignatureFramework\AfirmaBaseSoapClient.cs" />
-    <Compile Include="SignatureFramework\AfirmaSoapClient.cs" />
-    <Compile Include="SignatureFramework\AfirmaPolicyAssertion.cs" />
-    <Compile Include="SignatureFramework\InputSoapFilter.cs" />
+    <Compile Include="Soap\Assertions\AfirmaResponseAssertion.cs" />
+    <Compile Include="Soap\Assertions\UsernameTokenSoapAssertion.cs" />
+    <Compile Include="Soap\Assertions\X509SecurityTokenSoapAssertion.cs" />
+    <Compile Include="Soap\Clients\AfirmaBaseSoapClient.cs" />
+    <Compile Include="Soap\Clients\AfirmaSoapClient.cs" />
+    <Compile Include="Soap\Filters\InputSoapFilter.cs" />
     <Compile Include="SignatureFramework\RSAPKCS1SHA256SignatureDescription.cs" />
     <Compile Include="SignatureFramework\RSAPKCS1SHA512SignatureDescription.cs" />
     <Compile Include="SignatureFramework\Signature.cs" />
@@ -63,6 +65,8 @@
     <Compile Include="SignatureFramework\Tools.cs" />
     <Compile Include="SignatureFramework\ReturnUpdatedSignatureType.cs" />
     <Compile Include="SignatureFramework\XmlSignature.cs" />
+    <Compile Include="Soap\Filters\SignedSoapFilter.cs" />
+    <Compile Include="Soap\Filters\UsernameOutputFilter.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
