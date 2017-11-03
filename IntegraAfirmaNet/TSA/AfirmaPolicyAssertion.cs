@@ -92,13 +92,13 @@ namespace IntegraAfirmaNet.TSA
             }
 
             /// <summary>
-            /// No se implementa la entrada al cliente
+            /// Exclusivo de TS@ para sobreescribir mustUnderstand
             /// </summary>
             /// <remarks>Si se desea implementar un filtro para validar las respuestas de la plataforma, es aquí donde debería instanciarse.</remarks>
             /// <returns>null</returns>
             public override SoapFilter CreateClientInputFilter(FilterCreationContext context)
             {
-                return null;
+                return new InputSoapFilter(this);
             }
 
             /// <summary>
@@ -167,13 +167,13 @@ namespace IntegraAfirmaNet.TSA
               <wsu:Expires>2011-01-07T07:54:08Z</wsu:Expires>
           </wsu:Timestamp>
                */
-                XmlNode timestampNode = envelope.CreateNode(
-                    XmlNodeType.Element,
-                    "wsu:Timestamp", "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd"); 
-                XmlElement timestampElement = timestampNode as XmlElement;
+                //XmlNode timestampNode = envelope.CreateNode(
+                //    XmlNodeType.Element,
+                //    "wsu:Timestamp", "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd"); 
+                //XmlElement timestampElement = timestampNode as XmlElement;
 
-                XmlAttribute IdAttTs = envelope.CreateAttribute("wsu", "Id", "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd");
-                IdAttTs.Value = "Timestamp-"+Guid.NewGuid().ToString();
+                //XmlAttribute IdAttTs = envelope.CreateAttribute("wsu", "Id", "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd");
+                //IdAttTs.Value = "Timestamp-"+Guid.NewGuid().ToString();
 
                 XmlNode created = envelope.CreateNode(XmlNodeType.Element, "wsu:Created", "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd");
                 created.InnerText = DateTime.Now.ToString("o"); 
@@ -181,9 +181,9 @@ namespace IntegraAfirmaNet.TSA
                 DateTime expiration = DateTime.Now.AddMinutes(3);
                 XmlNode expires = envelope.CreateNode(XmlNodeType.Element, "wsu:Expires", "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd");
                 expires.InnerText = expiration.ToString("o");
-                timestampElement.Attributes.Append(IdAttTs);
-                timestampElement.AppendChild(expires);
-                timestampElement.AppendChild(created);
+                //timestampElement.Attributes.Append(IdAttTs);
+                //timestampElement.AppendChild(expires);
+                //timestampElement.AppendChild(created);
 
                 XmlNode binarySecurityTokenNode = envelope.CreateNode(
                     XmlNodeType.Element,
@@ -227,16 +227,16 @@ namespace IntegraAfirmaNet.TSA
                 bsBody.AddTransform(new XmlDsigExcC14NTransform());
                 si.AddReference(bsBody);
 
-                Reference refTimestamp = new Reference();
-                refTimestamp.Uri = "#" + IdAttTs.Value;
-                refTimestamp.AddTransform(new XmlDsigExcC14NTransform());
-                si.AddReference(refTimestamp);
+                //Reference refTimestamp = new Reference();
+                //refTimestamp.Uri = "#" + IdAttTs.Value;
+                //refTimestamp.AddTransform(new XmlDsigExcC14NTransform());
+                //si.AddReference(refTimestamp);
 
                 signature.SignedInfo = si;
                 signature.SigningKey = parentAssertion.Token.Certificate.PrivateKey;
 
                 securityNode.AppendChild(binarySecurityTokenNode);
-                securityNode.AppendChild(timestampNode);
+                //securityNode.AppendChild(timestampNode);
                 envelope.ImportNode(securityNode, true);
                 XmlNode node = envelope.Header;
 
@@ -253,5 +253,30 @@ namespace IntegraAfirmaNet.TSA
             }
         }
 
+    }
+
+    /// <summary> 
+    /// Exclusivo de TS@ se sobreescribe mustUnderstand para cumplir especificaciones 
+    /// </summary> 
+    internal class InputSoapFilter : SoapFilter
+    {
+        private AfirmaPolicyAssertions.X509SecurityTokenSoapAssertion parentAssertion;
+        private X509SecurityToken token;
+
+        public InputSoapFilter(AfirmaPolicyAssertions.X509SecurityTokenSoapAssertion parent)
+        {
+            parentAssertion = parent;
+            token = parentAssertion.Token;
+        }
+        public override SoapFilterResult ProcessMessage(SoapEnvelope envelope)
+        {
+            return NoMustUnderstand(envelope);
+        }
+
+        private static SoapFilterResult NoMustUnderstand(SoapEnvelope envelope)
+        {
+            envelope.InnerXml = envelope.InnerXml.Replace("mustUnderstand", "MustUnderstand");
+            return SoapFilterResult.Continue;
+        }
     }
 }

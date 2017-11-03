@@ -10,6 +10,12 @@ namespace IntegraAfirmaNet.Test
     [TestClass]
     public class TSA
     {
+        /// <summary>
+        ///  Gets or sets the test context which provides
+        ///  information about and functionality for the current test run.
+        ///</summary>
+        public TestContext TestContext { get; set; }
+
         [TestMethod]
         public void Prueba1()
         {
@@ -19,10 +25,11 @@ namespace IntegraAfirmaNet.Test
             {
                 //servicio.SoapVersion = SoapProtocolVersion.Soap11; 
                 var resultado = servicio.createTimeStampCertificado(
-                    @"\\nas01vnx\usuarios\INFORMATICA\informatica\Sistemas\Sede Electrónica\old\sello_componente_DIPUALBA.ES.p12",
-                    System.IO.File.ReadAllText(@"\\nas01vnx\usuarios\INFORMATICA\informatica\Sistemas\Sede Electrónica\old\pin.txt"),
+                    @"c:\Temp\sello_componente_DIPUALBA.ES.p12",
+                    System.IO.File.ReadAllText(@"C:\temp\pin.txt"),
                     GenerarSignRequest());
-                Debug.WriteLine(resultado.SignatureObject.SchemaRefs);
+                TestContext.WriteLine(resultado.Result.ResultMajor);
+                Assert.AreEqual("urn:oasis:names:tc:dss:1.0:resultmajor:Success", resultado.Result.ResultMajor);
             }
         }
 
@@ -36,7 +43,11 @@ namespace IntegraAfirmaNet.Test
 
             XmlDocument xmlSeccionOptionalDoc = new XmlDocument();
 
-            xmlSeccionOptionalDoc.LoadXml("<OptionalInputs xmlns=\"urn:oasis:names:tc:dss:1.0:core:schema\"><SignatureType>urn:oasis:names:tc:dss:1.0:core:schema</SignatureType>" + "<ClaimedIdentity>" + "<idAplicacion>dipualba.sellado_general</idAplicacion>" + "</ClaimedIdentity></OptionalInputs>");
+            xmlSeccionOptionalDoc.LoadXml("<OptionalInputs xmlns=\"urn:oasis:names:tc:dss:1.0:core:schema\">"
+                + "<SignatureType>urn:oasis:names:tc:dss:1.0:core:schema</SignatureType>" 
+                + "<ClaimedIdentity>" 
+                + "<idAplicacion>dipualba.sellado_general</idAplicacion>" 
+                + "</ClaimedIdentity></OptionalInputs>");
 
             signRequest.OptionalInputs.Any = new XmlElement[] {
                 (XmlElement)xmlSeccionOptionalDoc.ChildNodes.Item(0).FirstChild,
