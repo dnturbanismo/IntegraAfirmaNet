@@ -1,11 +1,9 @@
 using System;
-using System.Collections.Generic;
-using System.Text;
-using Microsoft.Web.Services3.Design;
 using System.Security.Cryptography.X509Certificates;
+using Microsoft.Web.Services3.Design;
 using Microsoft.Web.Services3.Security.Tokens;
 
-namespace IntegraAfirmaNet.SignatureFramework
+namespace IntegraAfirmaNet.TSA
 {
     /// <summary>
     /// Clase de herramientas para el uso del SignatureFramework
