@@ -11,6 +11,14 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Serialization;
+using AnyType = IntegraAfirmaNet.TSA.AnyType;
+using Base64Data = IntegraAfirmaNet.TSA.Base64Data;
+using Base64Signature = IntegraAfirmaNet.TSA.Base64Signature;
+using DocumentType = IntegraAfirmaNet.TSA.DocumentType;
+using InputDocuments = IntegraAfirmaNet.TSA.InputDocuments;
+using SignatureObject = IntegraAfirmaNet.TSA.SignatureObject;
+using SignaturePtr = IntegraAfirmaNet.TSA.SignaturePtr;
+using VerifyRequest = IntegraAfirmaNet.TSA.VerifyRequest;
 
 namespace IntegraAfirmaNet.Services
 {
