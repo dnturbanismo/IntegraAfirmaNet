@@ -28,7 +28,7 @@ namespace IntegraAfirmaNet.Test
                     @"c:\Temp\sello_componente_DIPUALBA.ES.p12",
                     System.IO.File.ReadAllText(@"C:\temp\pin.txt"),
                     GenerarSignRequest());
-                TestContext.WriteLine(resultado.Result.ResultMajor);
+                TestContext.WriteLine(DateTime.Now.ToShortTimeString() + " " + resultado.Result.ResultMajor);
                 Assert.AreEqual("urn:oasis:names:tc:dss:1.0:resultmajor:Success", resultado.Result.ResultMajor);
             }
         }
