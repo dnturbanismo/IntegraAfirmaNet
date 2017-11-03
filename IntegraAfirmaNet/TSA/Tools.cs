@@ -16,6 +16,7 @@ namespace IntegraAfirmaNet.TSA
         public class ExternalX509TokenProvider : X509TokenProvider
         {
             X509Certificate2 certificate = null;
+
             /// <summary>
             /// Crea un TokenProvider a partir de un fichero de claves y su password
             /// </summary>
@@ -23,14 +24,7 @@ namespace IntegraAfirmaNet.TSA
             /// <param name="keystorePassword">Password que protege el almacén</param>
             public ExternalX509TokenProvider(String keystorePath, String keystorePassword)
             {
-                try
-                {
-                    certificate = new X509Certificate2(keystorePath, keystorePassword);
-                }
-                catch (Exception e)
-                {
-                    certificate = null;
-                }
+                certificate = new X509Certificate2(keystorePath, keystorePassword);
             }
 
             /// <summary>
