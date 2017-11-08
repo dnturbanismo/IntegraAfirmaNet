@@ -31,9 +31,12 @@ namespace IntegraAfirmaNet.Services
 
             ClaimedIdentity identity = new ClaimedIdentity();
             identity.idAplicacion = _identity.ApplicationId;
-         
+
+            XmlDocument docSignatureType = new XmlDocument();
+            docSignatureType.LoadXml("<SignatureType>urn:oasis:names:tc:dss:1.0:core:schema</SignatureType>");
+
             sr.OptionalInputs = new AnyType();
-            sr.OptionalInputs.Any = new XmlElement[] { GetXmlElement<ClaimedIdentity>(identity) };
+            sr.OptionalInputs.Any = new XmlElement[] { docSignatureType.DocumentElement, GetXmlElement<ClaimedIdentity>(identity) };
 
             DocumentHash documentHash = new DocumentHash();
             documentHash.DigestMethod = new DigestMethodType();
