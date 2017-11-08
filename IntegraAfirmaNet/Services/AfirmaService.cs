@@ -21,40 +21,8 @@ namespace IntegraAfirmaNet.Services
         PAdES
     }
 
-    public class AfirmaService
+    public class AfirmaService : BaseService
     {
-        private string _baseUrlAfirma = null;
-        private Identity _identity = null;
-        private X509Certificate2 _serverCert = null;
-
-        private XmlElement GetXmlElement<T>(T source)
-        {
-            using (MemoryStream ms = new MemoryStream())
-            {
-                XmlSerializer serializer = new XmlSerializer(source.GetType());
-                serializer.Serialize(ms, source);
-
-                ms.Seek(0, SeekOrigin.Begin);
-
-                XmlDocument doc = new XmlDocument();
-                doc.Load(ms);
-
-                return doc.DocumentElement;
-            }
-        }
-
-        private T DeserializeXml<T>(string xml)
-        {
-            using (MemoryStream ms = new MemoryStream(UTF8Encoding.UTF8.GetBytes(xml)))
-            {
-                XmlSerializer serializer = new XmlSerializer(typeof(T));
-                T result = (T)serializer.Deserialize(ms);
-
-                return result;
-            }
-        }
-
-
         private VerifyRequest BuildRequest(object signature, string updatedSignatureType = null)
         {
             VerifyRequest vr = new VerifyRequest();
@@ -118,14 +86,12 @@ namespace IntegraAfirmaNet.Services
             return b64Data;
         }
 
-        public AfirmaService(string url, Identity identity)
+        public AfirmaService(string url, Identity identity) : base  (url, identity)
         {
-            _baseUrlAfirma = url;
-            _identity = identity;            
         }
 
         public AfirmaService(string url, Identity identity, X509Certificate2 serverCert) :
-            this(url, identity)
+            base(url, identity, serverCert)
         {
             _serverCert = serverCert;
         }
@@ -142,7 +108,7 @@ namespace IntegraAfirmaNet.Services
             XmlNode dssXml = xmlDoc.SelectSingleNode("//dssXML");
             dssXml.InnerText = GetXmlElement<VerifyRequest>(request).OuterXml;
 
-            DSSSignatureService ds = new DSSSignatureService(_baseUrlAfirma + "/DSSAfirmaVerify", _identity, _serverCert);
+            DSSSignatureService ds = new DSSSignatureService(_baseUrl + "/DSSAfirmaVerify", _identity, _serverCert);
 
             string result = ds.verify(GetXmlElement<VerifyRequest>(request).OuterXml);
 
@@ -160,7 +126,7 @@ namespace IntegraAfirmaNet.Services
 
             VerifyRequest request = BuildRequest(signatureObject, returnUpdateSignatureType.ResourceName);
 
-            DSSSignatureService ds = new DSSSignatureService(_baseUrlAfirma + "/DSSAfirmaVerify", _identity, _serverCert);
+            DSSSignatureService ds = new DSSSignatureService(_baseUrl + "/DSSAfirmaVerify", _identity, _serverCert);
 
             string result = ds.verify(GetXmlElement<VerifyRequest>(request).OuterXml);
 
@@ -226,7 +192,7 @@ namespace IntegraAfirmaNet.Services
 
             string peticion = GetXmlElement<mensajeEntrada>(mensaje).OuterXml;
 
-            ValidarCertificadoService client = new ValidarCertificadoService(_baseUrlAfirma + "/ValidarCertificado", _identity, _serverCert);
+            ValidarCertificadoService client = new ValidarCertificadoService(_baseUrl + "/ValidarCertificado", _identity, _serverCert);
 
             string result = client.ValidarCertificado(peticion);
 

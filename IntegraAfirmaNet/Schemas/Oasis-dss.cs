@@ -3499,6 +3499,8 @@ namespace IntegraAfirmaNet.Schemas
 
         private AnyType supportingInfoField;
 
+        private string idAplicacionField;
+
         /// <comentarios/>
         public NameIdentifierType Name
         {
@@ -3522,6 +3524,19 @@ namespace IntegraAfirmaNet.Schemas
             set
             {
                 this.supportingInfoField = value;
+            }
+        }
+
+        public string idAplicacion
+        {
+            get
+            {
+                return this.idAplicacionField;
+            }
+
+            set
+            {
+                this.idAplicacionField = value;
             }
         }
     }

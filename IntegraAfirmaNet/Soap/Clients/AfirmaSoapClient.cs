@@ -20,7 +20,7 @@ namespace IntegraAfirmaNet.SignatureFramework
 
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Web.Services.WebServiceBindingAttribute(Name = "DSSAfirmaVerifySoapBinding", Namespace = "urn:oasis:names:tc:dss:1.0:core:schema")]
-    public partial class DSSSignatureService : AfirmaBaseSoapClient
+    public partial class DSSSignatureService : BaseSoapClient
     {
         public DSSSignatureService(string url, Identity identity, X509Certificate2 serverCert) :
             base(url, identity, serverCert)
@@ -44,22 +44,15 @@ namespace IntegraAfirmaNet.SignatureFramework
         [return: System.Xml.Serialization.XmlElementAttribute("verifyReturn")]
         public string verify(string dssXML)
         {
-            try
-            {
-                object[] results = this.Invoke("verify", new object[] { dssXML });
+            object[] results = this.Invoke("verify", new object[] { dssXML });
 
-                return ((string)(results[0]));
-            }
-            catch (SoapException e)
-            {
-                return e.Message;
-            }
+            return ((string)(results[0]));
         }
     }
 
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Web.Services.WebServiceBindingAttribute(Name = "ValidarCertificadoSoapBinding", Namespace = "http://afirmaws/services/ValidarCertificado")]
-    public partial class ValidarCertificadoService : AfirmaBaseSoapClient
+    public partial class ValidarCertificadoService : BaseSoapClient
     {
         /// <remarks/>
         public ValidarCertificadoService(string url, Identity identity, X509Certificate2 serverCert) :
@@ -84,16 +77,9 @@ namespace IntegraAfirmaNet.SignatureFramework
         [return: System.Xml.Serialization.XmlElementAttribute("ValidarCertificadoReturn")]
         public string ValidarCertificado(string peticion)
         {
-            try
-            {
-                object[] results = this.Invoke("ValidarCertificado", new object[] { peticion });
+            object[] results = this.Invoke("ValidarCertificado", new object[] { peticion });
 
-                return ((string)(results[0]));
-            }
-            catch (SoapException e)
-            {
-                return e.Message;
-            }
+            return ((string)(results[0]));
         }
     }
 }

@@ -1,25 +1,32 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Net;
-using IntegraAfirmaNet.TSA;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Xml;
+using IntegraAfirmaNet.Authentication;
+using System.Security.Cryptography.X509Certificates;
+using IntegraAfirmaNet.Services;
+using IntegraAfirmaNet.Exceptions;
 
 namespace IntegraAfirmaNet.Test
 {
     [TestClass]
     public class TSA
     {
+        private string _appId = "dipualba.sellado_genera";
+        private string _certPath = @"c:\Temp\sello_componente_DIPUALBA.ES.p12";
+        private string _passwordFile = @"C:\temp\pin.txt";
+        
         /// <summary>
         ///  Gets or sets the test context which provides
         ///  information about and functionality for the current test run.
         ///</summary>
         public TestContext TestContext { get; set; }
 
-        [TestMethod]
-        public void Prueba1()
+        [TestMethod]        
+        public void CreateTimeStamp()
         {
-            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+            /*ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
             ServicePointManager.ServerCertificateValidationCallback += (sender, certificate, chain, sslPolicyErrors) => true;
             using (var servicio = new CreateTimeStampBinding())
             {
@@ -30,10 +37,32 @@ namespace IntegraAfirmaNet.Test
                     GenerarSignRequest());
                 TestContext.WriteLine(DateTime.Now.ToShortTimeString() + " " + resultado.Result.ResultMajor);
                 Assert.AreEqual("urn:oasis:names:tc:dss:1.0:resultmajor:Success", resultado.Result.ResultMajor);
+            }*/
+
+            try
+            {                
+                Identity identity = new Identity(GetCertificate(), _appId);
+
+                TsaService tsaService = new TsaService("https://des-tsafirma.redsara.es/tsamap", identity, null);
+
+                var timeStamp = tsaService.CreateTimeStamp(CrearHashTexto("BLABLABLA"), "http://www.w3.org/2001/04/xmlenc#sha256");
+            }
+            catch (AfirmaResultException afirmaEx)
+            {
+                Assert.Fail(string.Format("Error devuelto por @firma: {0}", afirmaEx.Message));
+            }
+            catch (Exception ex)
+            {
+                Assert.Fail(string.Format("Unexpected exception of type {0} caught: {1}", ex.GetType(), ex.Message));                
             }
         }
 
-        private static SignRequest GenerarSignRequest()
+        private X509Certificate2 GetCertificate()
+        {
+            return new X509Certificate2(_certPath, System.IO.File.ReadAllText(_passwordFile));
+        }
+
+/*        private static SignRequest GenerarSignRequest()
         {
             var signRequest = new SignRequest { OptionalInputs = new AnyType() };
 
@@ -63,7 +92,7 @@ namespace IntegraAfirmaNet.Test
             signRequest.InputDocuments.Items = new object[] { documentHash };
 
             return signRequest;
-        }
+        }*/
 
         protected static byte[] CrearHashTexto(string texto)
         {
