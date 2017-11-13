@@ -11,9 +11,9 @@ using System.Threading.Tasks;
 using System.Xml;
 
 namespace IntegraAfirmaNet.Services
-{
+{   
     public class TsaService: BaseService
-    {       
+    {
         public TsaService(string url, Identity identity)
             :base(url, identity)
         {
@@ -25,7 +25,7 @@ namespace IntegraAfirmaNet.Services
 
         }
 
-        private SignRequest BuildRequest(byte[] hashValue, string algorithm)
+        private SignRequest BuildRequest(RequestSignatureType signatureType, byte[] hashValue, string algorithm)
         {
             SignRequest sr = new SignRequest();
 
@@ -33,7 +33,7 @@ namespace IntegraAfirmaNet.Services
             identity.idAplicacion = _identity.ApplicationId;
 
             XmlDocument docSignatureType = new XmlDocument();
-            docSignatureType.LoadXml("<SignatureType>urn:oasis:names:tc:dss:1.0:core:schema</SignatureType>");
+            docSignatureType.LoadXml(string.Format("<SignatureType>{0}</SignatureType>", signatureType.Uri));
 
             sr.OptionalInputs = new AnyType();
             sr.OptionalInputs.Any = new XmlElement[] { docSignatureType.DocumentElement, GetXmlElement<ClaimedIdentity>(identity) };
@@ -49,15 +49,15 @@ namespace IntegraAfirmaNet.Services
         }
 
 
-        public Timestamp CreateTimeStamp(byte[] hashValue, string algorithm)
+        public Timestamp CreateTimeStamp(RequestSignatureType signatureType, byte[] hashValue, string algorithm)
         {
-            SignRequest request = BuildRequest(hashValue, algorithm);
+            SignRequest request = BuildRequest(signatureType, hashValue, algorithm);
 
             TsaSoapClient tsaSoapClient = new TsaSoapClient(_baseUrl + "/CreateTimeStampWS", _identity, _serverCert);
 
             SignResponse response = tsaSoapClient.createTimeStamp(request);
 
-            if (response.Result.ResultMajor == "urn:oasis:names:tc:dss:1.0:resultmajor:Success")
+            if (ResultType.Success.Equals(response.Result.ResultMajor))
             {
                 return response.SignatureObject.Item as Timestamp;
             }

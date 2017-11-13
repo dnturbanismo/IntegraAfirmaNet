@@ -7,6 +7,7 @@ using IntegraAfirmaNet.Authentication;
 using System.Security.Cryptography.X509Certificates;
 using IntegraAfirmaNet.Services;
 using IntegraAfirmaNet.Exceptions;
+using IntegraAfirmaNet.Schemas;
 
 namespace IntegraAfirmaNet.Test
 {
@@ -45,7 +46,7 @@ namespace IntegraAfirmaNet.Test
 
                 TsaService tsaService = new TsaService("https://des-tsafirma.redsara.es/tsamap", identity, null);
 
-                var timeStamp = tsaService.CreateTimeStamp(CrearHashTexto("BLABLABLA"), "http://www.w3.org/2001/04/xmlenc#sha256");
+                var timeStamp = tsaService.CreateTimeStamp(RequestSignatureType.ASN1, CrearHashTexto("BLABLABLA"), "http://www.w3.org/2001/04/xmlenc#sha256");
             }
             catch (AfirmaResultException afirmaEx)
             {

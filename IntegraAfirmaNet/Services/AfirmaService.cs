@@ -23,6 +23,8 @@ namespace IntegraAfirmaNet.Services
 
     public class AfirmaService : BaseService
     {
+        private static ResultType _validSignature = new ResultType("urn:afirma:dss:1.0:profile:XSS:resultmajor:ValidSignature");
+        
         private VerifyRequest BuildRequest(object signature, string updatedSignatureType = null)
         {
             VerifyRequest vr = new VerifyRequest();
@@ -114,9 +116,9 @@ namespace IntegraAfirmaNet.Services
 
             VerifyResponse response = DeserializeXml<VerifyResponse>(result);
 
-            if (response.Result.ResultMajor != "urn:afirma:dss:1.0:profile:XSS:resultmajor:ValidSignature")
+            if (!_validSignature.Equals(response.Result.ResultMajor))
             {
-                throw new AfirmaResultException(response.Result.ResultMajor, response.Result.ResultMessage.Value);
+                throw new AfirmaResultException(response.Result.ResultMajor, response.Result.ResultMinor, response.Result.ResultMessage.Value);
             }
         }
 
@@ -132,7 +134,7 @@ namespace IntegraAfirmaNet.Services
 
             VerifyResponse response = DeserializeXml<VerifyResponse>(result);
 
-            if (response.Result.ResultMajor == "urn:oasis:names:tc:dss:1.0:resultmajor:Success")
+            if (ResultType.Success.Equals(response.Result.ResultMajor))
             {
                 XmlElement updatedSignatureXmlElement = response.OptionalOutputs.Any.Single(e => e.LocalName == "UpdatedSignature");
                 UpdatedSignatureType updatedSignatureType = DeserializeXml<UpdatedSignatureType>(updatedSignatureXmlElement.OuterXml);
@@ -175,7 +177,7 @@ namespace IntegraAfirmaNet.Services
             }
             else
             {
-                throw new AfirmaResultException(response.Result.ResultMajor, response.Result.ResultMessage.Value);
+                throw new AfirmaResultException(response.Result.ResultMajor, response.Result.ResultMinor, response.Result.ResultMessage.Value);
             }
         }
 

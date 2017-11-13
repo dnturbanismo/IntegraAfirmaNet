@@ -8,19 +8,35 @@ namespace IntegraAfirmaNet.Exceptions
 {
     public class AfirmaResultException : Exception
     {
-        private string _codigo;
+        private string _majorCode;
+        private string _minorCode;
 
-        public string Codigo
+        public string MajorCode
         {
             get
             {
-                return _codigo;
+                return _majorCode;
             }
         }
 
-        public AfirmaResultException(string codigo, string message): base(message)
+        public string MinorCode
         {
-            _codigo = codigo;
+            get
+            {
+                return _minorCode;
+            }
         }
+
+        public AfirmaResultException(string majorCode, string message): base(message)
+        {
+            _majorCode = majorCode;
+        }
+
+        public AfirmaResultException(string majorCode, string minorCode, string message)
+            : this(majorCode, message)
+        {
+            _minorCode = minorCode;
+        }
+
     }
 }
