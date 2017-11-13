@@ -33,6 +33,16 @@ namespace IntegraAfirmaNet.Services
             }
         }
 
+        protected XmlElement GetXmlElement(string xml)
+        {
+            XmlDocument document = new XmlDocument();
+            document.PreserveWhitespace = true;
+
+            document.LoadXml(xml);
+
+            return document.DocumentElement;
+        }
+
         protected T DeserializeXml<T>(string xml)
         {
             using (MemoryStream ms = new MemoryStream(UTF8Encoding.UTF8.GetBytes(xml)))

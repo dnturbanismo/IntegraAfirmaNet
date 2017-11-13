@@ -8,23 +8,33 @@ using System.Security.Cryptography.X509Certificates;
 using IntegraAfirmaNet.Services;
 using IntegraAfirmaNet.Exceptions;
 using IntegraAfirmaNet.Schemas;
+using System.IO;
 
 namespace IntegraAfirmaNet.Test
 {
     [TestClass]
     public class TSA
     {
-        private string _appId = "dipualba.sellado_genera";
-        private string _certPath = @"c:\Temp\sello_componente_DIPUALBA.ES.p12";
-        private string _passwordFile = @"C:\temp\pin.txt";
-        
+        private string _appId;
+        private string _certPath;
+        private string _password;
+
         /// <summary>
         ///  Gets or sets the test context which provides
         ///  information about and functionality for the current test run.
         ///</summary>
         public TestContext TestContext { get; set; }
 
-        [TestMethod]        
+        public TSA()
+        {
+            string[] lines = File.ReadAllLines(@"C:\Temp\Config.txt");
+
+            _appId = lines[0]; // Linea 1: identificador de la aplicacion
+            _certPath = lines[1];  // Linea 2: ruta donde se encuentra el certificado para firmar las peticiones
+            _password = lines[2]; // Linea 3: password del fichero
+        }
+
+        [TestMethod]
         public void CreateTimeStamp()
         {
             /*ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
@@ -41,12 +51,17 @@ namespace IntegraAfirmaNet.Test
             }*/
 
             try
-            {                
+            {
                 Identity identity = new Identity(GetCertificate(), _appId);
 
                 TsaService tsaService = new TsaService("https://des-tsafirma.redsara.es/tsamap", identity, null);
 
-                var timeStamp = tsaService.CreateTimeStamp(RequestSignatureType.ASN1, CrearHashTexto("BLABLABLA"), "http://www.w3.org/2001/04/xmlenc#sha256");
+                DocumentHash documentHash = new DocumentHash();
+                documentHash.DigestMethod = new DigestMethodType();
+                documentHash.DigestMethod.Algorithm = "http://www.w3.org/2001/04/xmlenc#sha256";
+                documentHash.DigestValue = CrearHashTexto("BLABLABLA");
+
+                var timeStamp = tsaService.CreateTimeStamp<DocumentHash>(RequestSignatureType.ASN1, documentHash);
             }
             catch (AfirmaResultException afirmaEx)
             {
@@ -54,46 +69,46 @@ namespace IntegraAfirmaNet.Test
             }
             catch (Exception ex)
             {
-                Assert.Fail(string.Format("Unexpected exception of type {0} caught: {1}", ex.GetType(), ex.Message));                
+                Assert.Fail(string.Format("Unexpected exception of type {0} caught: {1}", ex.GetType(), ex.Message));
             }
         }
 
         private X509Certificate2 GetCertificate()
         {
-            return new X509Certificate2(_certPath, System.IO.File.ReadAllText(_passwordFile));
+            return new X509Certificate2(_certPath, _password);
         }
 
-/*        private static SignRequest GenerarSignRequest()
-        {
-            var signRequest = new SignRequest { OptionalInputs = new AnyType() };
+        /*        private static SignRequest GenerarSignRequest()
+                {
+                    var signRequest = new SignRequest { OptionalInputs = new AnyType() };
 
 
-            //Dim applicationIdentity As New ApplicationIdentity("dipualba.sellado_general")
+                    //Dim applicationIdentity As New ApplicationIdentity("dipualba.sellado_general")
 
 
-            XmlDocument xmlSeccionOptionalDoc = new XmlDocument();
+                    XmlDocument xmlSeccionOptionalDoc = new XmlDocument();
 
-            xmlSeccionOptionalDoc.LoadXml("<OptionalInputs xmlns=\"urn:oasis:names:tc:dss:1.0:core:schema\">"
-                + "<SignatureType>urn:oasis:names:tc:dss:1.0:core:schema</SignatureType>" 
-                + "<ClaimedIdentity>" 
-                + "<idAplicacion>dipualba.sellado_general</idAplicacion>" 
-                + "</ClaimedIdentity></OptionalInputs>");
+                    xmlSeccionOptionalDoc.LoadXml("<OptionalInputs xmlns=\"urn:oasis:names:tc:dss:1.0:core:schema\">"
+                        + "<SignatureType>urn:oasis:names:tc:dss:1.0:core:schema</SignatureType>" 
+                        + "<ClaimedIdentity>" 
+                        + "<idAplicacion>dipualba.sellado_general</idAplicacion>" 
+                        + "</ClaimedIdentity></OptionalInputs>");
 
-            signRequest.OptionalInputs.Any = new XmlElement[] {
-                (XmlElement)xmlSeccionOptionalDoc.ChildNodes.Item(0).FirstChild,
-                (XmlElement)xmlSeccionOptionalDoc.ChildNodes.Item(0).LastChild
-            };
+                    signRequest.OptionalInputs.Any = new XmlElement[] {
+                        (XmlElement)xmlSeccionOptionalDoc.ChildNodes.Item(0).FirstChild,
+                        (XmlElement)xmlSeccionOptionalDoc.ChildNodes.Item(0).LastChild
+                    };
 
-            DocumentHash documentHash = new DocumentHash();
-            documentHash.DigestMethod = new DigestMethodType();
-            documentHash.DigestMethod.Algorithm = "http://www.w3.org/2001/04/xmlenc#sha256";
-            documentHash.DigestValue = new DigestValueType();
-            documentHash.DigestValue.Value = CrearHashTexto("BLABLABLA");
-            signRequest.InputDocuments = new InputDocuments();
-            signRequest.InputDocuments.Items = new object[] { documentHash };
+                    DocumentHash documentHash = new DocumentHash();
+                    documentHash.DigestMethod = new DigestMethodType();
+                    documentHash.DigestMethod.Algorithm = "http://www.w3.org/2001/04/xmlenc#sha256";
+                    documentHash.DigestValue = new DigestValueType();
+                    documentHash.DigestValue.Value = CrearHashTexto("BLABLABLA");
+                    signRequest.InputDocuments = new InputDocuments();
+                    signRequest.InputDocuments.Items = new object[] { documentHash };
 
-            return signRequest;
-        }*/
+                    return signRequest;
+                }*/
 
         protected static byte[] CrearHashTexto(string texto)
         {

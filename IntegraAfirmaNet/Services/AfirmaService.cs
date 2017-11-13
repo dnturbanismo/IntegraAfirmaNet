@@ -104,12 +104,6 @@ namespace IntegraAfirmaNet.Services
 
             VerifyRequest request = BuildRequest(signatureObject, null);
 
-            XmlDocument xmlDoc = new XmlDocument();
-            xmlDoc.LoadXml("<dssXML xmlns=\"\"></dssXML>");
-
-            XmlNode dssXml = xmlDoc.SelectSingleNode("//dssXML");
-            dssXml.InnerText = GetXmlElement<VerifyRequest>(request).OuterXml;
-
             DSSSignatureService ds = new DSSSignatureService(_baseUrl + "/DSSAfirmaVerify", _identity, _serverCert);
 
             string result = ds.verify(GetXmlElement<VerifyRequest>(request).OuterXml);
