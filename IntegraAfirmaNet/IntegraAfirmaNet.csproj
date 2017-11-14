@@ -72,18 +72,6 @@
     <Compile Include="SignatureFramework\XmlSignature.cs" />
     <Compile Include="Soap\Filters\SignedSoapFilter.cs" />
     <Compile Include="Soap\Filters\UsernameOutputFilter.cs" />
-    <Compile Include="TSA\AfirmaPolicyAssertion.cs" />
-    <Compile Include="TSA\CreateTimeStampWS.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="TSA\Reference.cs" />
-    <Compile Include="TSA\Signature.cs" />
-    <Compile Include="TSA\SignedInfo.cs" />
-    <Compile Include="TSA\SignedXmlSignature.cs" />
-    <Compile Include="TSA\Tools.cs" />
-    <Compile Include="TSA\Transforms.cs" />
-    <Compile Include="TSA\XmlCanonicalizer.cs" />
-    <Compile Include="TSA\XmlSignature.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
