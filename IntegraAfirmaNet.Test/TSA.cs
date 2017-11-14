@@ -9,6 +9,7 @@ using IntegraAfirmaNet.Services;
 using IntegraAfirmaNet.Exceptions;
 using IntegraAfirmaNet.Schemas;
 using System.IO;
+using System.Reflection;
 
 namespace IntegraAfirmaNet.Test
 {
@@ -18,6 +19,7 @@ namespace IntegraAfirmaNet.Test
         private string _appId;
         private string _certPath;
         private string _password;
+        private TsaService _tsaService;
 
         /// <summary>
         ///  Gets or sets the test context which provides
@@ -32,6 +34,11 @@ namespace IntegraAfirmaNet.Test
             _appId = lines[0]; // Linea 1: identificador de la aplicacion
             _certPath = lines[1];  // Linea 2: ruta donde se encuentra el certificado para firmar las peticiones
             _password = lines[2]; // Linea 3: password del fichero
+
+            Identity identity = new Identity(new X509Certificate2(_certPath, _password), _appId);
+
+            _tsaService = new TsaService("https://des-tsafirma.redsara.es/tsamap", identity,
+                new X509Certificate2(ObtenerRecurso("IntegraAfirmaNet.Test.Certificados.SGAD_SE.cer")));
         }
 
         [TestMethod]
@@ -52,16 +59,12 @@ namespace IntegraAfirmaNet.Test
 
             try
             {
-                Identity identity = new Identity(GetCertificate(), _appId);
-
-                TsaService tsaService = new TsaService("https://des-tsafirma.redsara.es/tsamap", identity, null);
-
                 DocumentHash documentHash = new DocumentHash();
                 documentHash.DigestMethod = new DigestMethodType();
                 documentHash.DigestMethod.Algorithm = "http://www.w3.org/2001/04/xmlenc#sha256";
                 documentHash.DigestValue = CrearHashTexto("BLABLABLA");
 
-                var timeStamp = tsaService.CreateTimeStamp<DocumentHash>(RequestSignatureType.ASN1, documentHash);
+                var timeStamp = _tsaService.CreateTimeStamp<DocumentHash>(RequestSignatureType.ASN1, documentHash);
             }
             catch (AfirmaResultException afirmaEx)
             {
@@ -73,9 +76,17 @@ namespace IntegraAfirmaNet.Test
             }
         }
 
-        private X509Certificate2 GetCertificate()
+        private byte[] ObtenerRecurso(string nombre)
         {
-            return new X509Certificate2(_certPath, _password);
+            var assembly = Assembly.GetExecutingAssembly();
+
+            using (Stream stream = assembly.GetManifestResourceStream(nombre))
+            using (MemoryStream ms = new MemoryStream())
+            {
+                stream.CopyTo(ms);
+
+                return ms.ToArray();
+            }
         }
 
         /*        private static SignRequest GenerarSignRequest()

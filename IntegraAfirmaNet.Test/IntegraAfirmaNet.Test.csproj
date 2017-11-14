@@ -54,10 +54,14 @@
     <Reference Include="System.XML" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AFirma.cs" />
     <Compile Include="TSA.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Certificados\SGAD_SE.cer" />
+    <EmbeddedResource Include="Certificados\lp_qse_es_sw_kpsc_valido.crt" />
+    <EmbeddedResource Include="Firmas\cades_attached_implicit.csig" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
@@ -65,6 +69,9 @@
       <Project>{7428cb89-113f-4277-85e3-289dc3f053f6}</Project>
       <Name>IntegraAfirmaNet</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Firmas\xades_internally_detached.xml" />
   </ItemGroup>
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
