@@ -64,7 +64,7 @@ namespace IntegraAfirmaNet.Test
                 documentHash.DigestMethod.Algorithm = "http://www.w3.org/2001/04/xmlenc#sha256";
                 documentHash.DigestValue = CrearHashTexto("BLABLABLA");
 
-                var timeStamp = _tsaService.CreateTimeStamp<DocumentHash>(RequestSignatureType.ASN1, documentHash);
+                var timeStamp = _tsaService.CreateTimeStamp(RequestSignatureType.ASN1, documentHash);
             }
             catch (AfirmaResultException afirmaEx)
             {

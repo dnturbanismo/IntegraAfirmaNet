@@ -101,6 +101,40 @@ namespace IntegraAfirmaNet.Test
             }
         }
 
+        [TestMethod]
+        public void AmpliarACadesADetached()
+        {
+            try
+            {
+                byte[] firma = ObtenerRecurso("IntegraAfirmaNet.Test.Firmas.cades_detached_explicit.csig");
+
+                DocumentHash docHash = new DocumentHash();
+                docHash.DigestMethod = new DigestMethodType();
+                docHash.DigestMethod.Algorithm = "http://www.w3.org/2001/04/xmlenc#sha256";
+                docHash.DigestValue = Convert.FromBase64String("11I1LxBkDvUpLwZqf2PHDmlQRM2vpf3t2Bg0kKODA8c=");
+
+                TestContext.WriteLine(string.Format("{0}: {1}", DateTime.Now.ToShortTimeString(), "Ampliando firma"));
+
+                byte[] firmaAmpliada = _afirmaService.UpgradeSignature(firma, SignatureFormat.CAdES, ReturnUpdatedSignatureType.AdES_A, new DocumentBaseType[] { docHash });
+
+                string resultado = TestContext.TestRunResultsDirectory + "\\FirmaCades-Detached-A.csig";
+
+                File.WriteAllBytes(resultado, firmaAmpliada);
+
+                TestContext.AddResultFile(resultado);
+
+                TestContext.WriteLine(string.Format("{0}: {1}", DateTime.Now.ToShortTimeString(), "Firma ampliada"));
+            }
+            catch (AfirmaResultException afirmaEx)
+            {
+                Assert.Fail(string.Format("Error devuelto por @firma: {0}", afirmaEx.Message));
+            }
+            catch (Exception ex)
+            {
+                Assert.Fail(string.Format("Unexpected exception of type {0} caught: {1}", ex.GetType(), ex.Message));
+            }
+        }
+
 
         [TestMethod]
         public void ValidarFirmaXades()
@@ -137,6 +171,36 @@ namespace IntegraAfirmaNet.Test
                 TestContext.WriteLine(string.Format("{0}: {1}", DateTime.Now.ToShortTimeString(), "Verificando firma"));
 
                 VerifyResponse resultado = _afirmaService.VerifySignature(firma, SignatureFormat.CAdES, true);
+
+                Assert.AreEqual(resultado.Result.ResultMajor, ResultType.ValidSignature.Uri);
+
+                TestContext.WriteLine(string.Format("{0}: {1}", DateTime.Now.ToShortTimeString(), "Firma válida"));
+            }
+            catch (AfirmaResultException afirmaEx)
+            {
+                Assert.Fail(string.Format("Error devuelto por @firma: {0}", afirmaEx.Message));
+            }
+            catch (Exception ex)
+            {
+                Assert.Fail(string.Format("Unexpected exception of type {0} caught: {1}", ex.GetType(), ex.Message));
+            }
+        }
+
+        [TestMethod]
+        public void ValidarFirmaCadesDetached()
+        {
+            try
+            {
+                byte[] firma = ObtenerRecurso("IntegraAfirmaNet.Test.Firmas.cades_detached_explicit.csig");
+
+                DocumentHash docHash = new DocumentHash();
+                docHash.DigestMethod = new DigestMethodType();
+                docHash.DigestMethod.Algorithm = "http://www.w3.org/2001/04/xmlenc#sha256";
+                docHash.DigestValue = Convert.FromBase64String("11I1LxBkDvUpLwZqf2PHDmlQRM2vpf3t2Bg0kKODA8c=");
+
+                TestContext.WriteLine(string.Format("{0}: {1}", DateTime.Now.ToShortTimeString(), "Verificando firma"));
+
+                VerifyResponse resultado = _afirmaService.VerifySignature(firma, SignatureFormat.CAdES, true, new DocumentBaseType[] { docHash });
 
                 Assert.AreEqual(resultado.Result.ResultMajor, ResultType.ValidSignature.Uri);
 

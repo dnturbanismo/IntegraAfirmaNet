@@ -24,8 +24,8 @@ namespace IntegraAfirmaNet.Services
     public class AfirmaService : BaseService
     {
 
-        private VerifyRequest BuildRequest(object[] inputDocuments, SignatureObject signatureObject,
-            XmlElement[] optionalInputs)
+        private VerifyRequest BuildRequest(IEnumerable<object> inputDocuments, SignatureObject signatureObject,
+            IEnumerable<XmlElement> optionalInputs)
         {
             VerifyRequest vr = new VerifyRequest();
 
@@ -46,7 +46,7 @@ namespace IntegraAfirmaNet.Services
             if (inputDocuments != null)
             {
                 vr.InputDocuments = new InputDocuments();
-                vr.InputDocuments.Items = inputDocuments;
+                vr.InputDocuments.Items = inputDocuments.ToArray();
             }
             vr.SignatureObject = signatureObject;
 
@@ -86,11 +86,10 @@ namespace IntegraAfirmaNet.Services
             _serverCert = serverCert;
         }
 
-        public VerifyResponse VerifySignature(byte[] signature, SignatureFormat signatureFormat, bool includeDetails)
+        public VerifyResponse VerifySignature(byte[] signature, SignatureFormat signatureFormat, bool includeDetails,
+            IEnumerable<DocumentBaseType> otherInputDocuments = null)
         {
             object document = GetDocument(signature, signatureFormat);
-
-            IgnoreGracePeriod igp = new IgnoreGracePeriod();
 
             DocumentType doc = new DocumentType();
             doc.ID = "ID_DOCUMENTO";
@@ -101,6 +100,19 @@ namespace IntegraAfirmaNet.Services
             {
                 WhichDocument = "ID_DOCUMENTO"
             };
+
+            List<DocumentBaseType> documents = new List<DocumentBaseType>();
+            documents.Add(doc);
+
+            if (otherInputDocuments != null)
+            {
+                foreach (var inputDocument in otherInputDocuments)
+                {
+                    documents.Add(inputDocument);
+                }
+            }
+
+            IgnoreGracePeriod igp = new IgnoreGracePeriod();
 
             ReturnVerificationReport verificationReport = new ReturnVerificationReport();
             verificationReport.ReportOptions = new ReportOptionsType();
@@ -113,7 +125,7 @@ namespace IntegraAfirmaNet.Services
                 verificationReport.ReportOptions.ReportDetailLevel = "urn:oasis:names:tc:dss:1.0:reportdetail:noDetails";
             }
 
-            VerifyRequest request = BuildRequest(new object[] { doc }, signatureObject, new XmlElement[] { GetXmlElement(igp), GetXmlElement(verificationReport) });
+            VerifyRequest request = BuildRequest(documents, signatureObject, new XmlElement[] { GetXmlElement(igp), GetXmlElement(verificationReport) });
 
             DSSAfirmaVerifyService ds = new DSSAfirmaVerifyService(_baseUrl + "/DSSAfirmaVerify", _identity, _serverCert);
 
@@ -130,7 +142,8 @@ namespace IntegraAfirmaNet.Services
             return response;
         }
 
-        public byte[] UpgradeSignature(byte[] signature, SignatureFormat signatureFormat, ReturnUpdatedSignatureType returnUpdateSignatureType)
+        public byte[] UpgradeSignature(byte[] signature, SignatureFormat signatureFormat, ReturnUpdatedSignatureType returnUpdateSignatureType,
+            IEnumerable<DocumentBaseType> otherInputDocuments = null)
         {
             object document = GetDocument(signature, signatureFormat);
 
@@ -149,7 +162,18 @@ namespace IntegraAfirmaNet.Services
                 WhichDocument = "ID_DOCUMENTO"
             };
 
-            VerifyRequest request = BuildRequest(new object[] { doc }, signatureObject, new XmlElement[] { GetXmlElement(igp), GetXmlElement(returnUpdated) });
+            List<DocumentBaseType> documents = new List<DocumentBaseType>();
+            documents.Add(doc);
+
+            if (otherInputDocuments != null)
+            {
+                foreach (var inputDocument in otherInputDocuments)
+                {
+                    documents.Add(inputDocument);
+                }
+            }
+
+            VerifyRequest request = BuildRequest(documents, signatureObject, new XmlElement[] { GetXmlElement(igp), GetXmlElement(returnUpdated) });
 
             DSSAfirmaVerifyService ds = new DSSAfirmaVerifyService(_baseUrl + "/DSSAfirmaVerify", _identity, _serverCert);
 

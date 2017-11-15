@@ -62,6 +62,7 @@
     <EmbeddedResource Include="Certificados\SGAD_SE.cer" />
     <EmbeddedResource Include="Certificados\lp_qse_es_sw_kpsc_valido.crt" />
     <EmbeddedResource Include="Firmas\cades_attached_implicit.csig" />
+    <EmbeddedResource Include="Firmas\cades_detached_explicit.csig" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
@@ -72,6 +73,9 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Firmas\xades_internally_detached.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Settings.runsettings" />
   </ItemGroup>
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -25,7 +25,7 @@ namespace IntegraAfirmaNet.Services
 
         }
 
-        private SignRequest BuildRequest<T>(RequestSignatureType signatureType, T document, Timestamp previousTimestamp) where T : DocumentBaseType
+        private SignRequest BuildRequest(RequestSignatureType signatureType, DocumentBaseType document, Timestamp previousTimestamp)
         {
             SignRequest sr = new SignRequest();
 
@@ -55,7 +55,7 @@ namespace IntegraAfirmaNet.Services
             return sr;
         }
 
-        private VerifyRequest BuildVerifyRequest<T>(T document, Timestamp timeStamp) where T : DocumentBaseType
+        private VerifyRequest BuildVerifyRequest(DocumentBaseType document, Timestamp timeStamp)
         {
             VerifyRequest vr = new VerifyRequest();
 
@@ -73,9 +73,9 @@ namespace IntegraAfirmaNet.Services
             return vr;
         }
 
-        public Timestamp CreateTimeStamp<T>(RequestSignatureType signatureType, T document) where T : DocumentBaseType
+        public Timestamp CreateTimeStamp(RequestSignatureType signatureType, DocumentBaseType document)
         {
-            SignRequest request = BuildRequest<T>(signatureType, document, null);
+            SignRequest request = BuildRequest(signatureType, document, null);
 
             CreateTimeSoapClient tsaSoapClient = new CreateTimeSoapClient(_baseUrl + "/CreateTimeStampWS", _identity, _serverCert);
 
@@ -91,9 +91,9 @@ namespace IntegraAfirmaNet.Services
             }
         }
 
-        public Timestamp RenewTimeStamp<T>(RequestSignatureType signatureType, Timestamp previousTimestamp, T document) where T : DocumentBaseType
+        public Timestamp RenewTimeStamp(RequestSignatureType signatureType, Timestamp previousTimestamp, DocumentBaseType document)
         {
-            SignRequest request = BuildRequest<T>(signatureType, document, previousTimestamp);
+            SignRequest request = BuildRequest(signatureType, document, previousTimestamp);
 
             RenewTimeSoapClient tsaSoapClient = new RenewTimeSoapClient(_baseUrl + "/RenewTimeStampWS", _identity, _serverCert);
 
@@ -109,9 +109,9 @@ namespace IntegraAfirmaNet.Services
             }
         }
 
-        public void VerifyTimestamp<T>(T document, Timestamp timeStamp) where T : DocumentBaseType
+        public void VerifyTimestamp(DocumentBaseType document, Timestamp timeStamp)
         {
-            VerifyRequest request = BuildVerifyRequest<T>(document, timeStamp);
+            VerifyRequest request = BuildVerifyRequest(document, timeStamp);
 
             VerifyTimeSoapClient tsaSoapClient = new VerifyTimeSoapClient(_baseUrl + "/VerifyTimeStampWS", _identity, _serverCert);
 
