@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace IntegraAfirmaNet.Schemas
 {
-    class ResultType
+    public class ResultType
     {
         private string _uri;
 
@@ -22,6 +22,10 @@ namespace IntegraAfirmaNet.Schemas
         public static ResultType RequesterError = new ResultType("urn:oasis:names:tc:dss:1.0:resultmajor:RequesterError");
         public static ResultType ResponderError = new ResultType("urn:oasis:names:tc:dss:1.0:resultmajor:ResponderError");
         public static ResultType Warning = new ResultType("urn:oasis:names:tc:dss:1.0:resultmajor:Warning");
+
+        // Resultados de afirma
+        public static ResultType ValidSignature = new ResultType("urn:afirma:dss:1.0:profile:XSS:resultmajor:ValidSignature");
+        public static ResultType InvalidSignature = new ResultType("urn:afirma:dss:1.0:profile:XSS:resultmajor:InvalidSignature");
 
         internal ResultType(string uri)
         {

@@ -51,7 +51,7 @@
     <Compile Include="Authentication\Identity.cs" />
     <Compile Include="Schemas\RequestSignatureType.cs" />
     <Compile Include="Schemas\ResultType.cs" />
-    <Compile Include="Schemas\ValidarCertificado.cs" />
+    <Compile Include="Schemas\VerificationReport.cs" />
     <Compile Include="Services\AfirmaService.cs" />
     <Compile Include="Services\BaseService.cs" />
     <Compile Include="Services\TsaService.cs" />

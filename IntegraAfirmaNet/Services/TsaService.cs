@@ -40,13 +40,13 @@ namespace IntegraAfirmaNet.Services
             {
                 string renewXml = "<RenewTimestamp><PreviousTimestamp>{0}</PreviousTimestamp></RenewTimestamp>";
 
-                XmlElement previousTimestampElement = GetXmlElement(string.Format(renewXml, GetXmlElement<Timestamp>(previousTimestamp).OuterXml));
+                XmlElement previousTimestampElement = GetXmlElement(string.Format(renewXml, GetXmlElement(previousTimestamp).OuterXml));
 
-                sr.OptionalInputs.Any = new XmlElement[] { signatureTypeElement, GetXmlElement<ClaimedIdentity>(identity), previousTimestampElement };
+                sr.OptionalInputs.Any = new XmlElement[] { signatureTypeElement, GetXmlElement(identity), previousTimestampElement };
             }
             else
             {
-                sr.OptionalInputs.Any = new XmlElement[] { signatureTypeElement, GetXmlElement<ClaimedIdentity>(identity) };
+                sr.OptionalInputs.Any = new XmlElement[] { signatureTypeElement, GetXmlElement(identity) };
             }
 
             sr.InputDocuments = new InputDocuments();
@@ -59,11 +59,11 @@ namespace IntegraAfirmaNet.Services
         {
             VerifyRequest vr = new VerifyRequest();
 
-            ClaimedIdentity identity = new ClaimedIdentity();
+            IntegraAfirmaNet.Schemas.ClaimedIdentity identity = new IntegraAfirmaNet.Schemas.ClaimedIdentity();
             identity.idAplicacion = _identity.ApplicationId;
 
             vr.OptionalInputs = new AnyType();
-            vr.OptionalInputs.Any = new XmlElement[] { GetXmlElement<ClaimedIdentity>(identity) };
+            vr.OptionalInputs.Any = new XmlElement[] { GetXmlElement(identity) };
 
             vr.SignatureObject = new SignatureObject();
             vr.SignatureObject.Item = timeStamp;

@@ -23,50 +23,37 @@ namespace IntegraAfirmaNet.Services
 
     public class AfirmaService : BaseService
     {
-        private static ResultType _validSignature = new ResultType("urn:afirma:dss:1.0:profile:XSS:resultmajor:ValidSignature");
-        
-        private VerifyRequest BuildRequest(object signature, string updatedSignatureType = null)
+
+        private VerifyRequest BuildRequest(object[] inputDocuments, SignatureObject signatureObject,
+            XmlElement[] optionalInputs)
         {
             VerifyRequest vr = new VerifyRequest();
 
             ClaimedIdentity identity = new ClaimedIdentity();
             identity.Name = new NameIdentifierType() { Value = _identity.ApplicationId };
 
-            IgnoreGracePeriod igp = new IgnoreGracePeriod();
+            List<XmlElement> optionalInputsList = new List<XmlElement>();
+            optionalInputsList.Add(GetXmlElement(identity));
+
+            foreach (var optionalInput in optionalInputs)
+            {
+                optionalInputsList.Add(optionalInput);
+            }
 
             vr.OptionalInputs = new AnyType();
+            vr.OptionalInputs.Any = optionalInputsList.ToArray();
 
-            if (!string.IsNullOrEmpty(updatedSignatureType))
+            if (inputDocuments != null)
             {
-                ReturnUpdatedSignature returnUpdated = new ReturnUpdatedSignature();
-                returnUpdated.Type = updatedSignatureType;
-
-                vr.OptionalInputs.Any = new XmlElement[] { GetXmlElement<ClaimedIdentity>(identity),
-                GetXmlElement<ReturnUpdatedSignature>(returnUpdated),                
-                GetXmlElement<IgnoreGracePeriod>(igp)};
+                vr.InputDocuments = new InputDocuments();
+                vr.InputDocuments.Items = inputDocuments;
             }
-            else
-            {
-                vr.OptionalInputs.Any = new XmlElement[] { GetXmlElement<ClaimedIdentity>(identity),
-                GetXmlElement<IgnoreGracePeriod>(igp)};
-            }
-
-            DocumentType doc = new DocumentType();
-            doc.ID = "ID_DOCUMENTO";
-            doc.Item = signature;
-            vr.InputDocuments = new InputDocuments();
-            vr.InputDocuments.Items = new object[] { doc };
-            vr.SignatureObject = new SignatureObject();
-            vr.SignatureObject.Item = new SignaturePtr()
-            {
-                WhichDocument = "ID_DOCUMENTO"
-            };
+            vr.SignatureObject = signatureObject;
 
             return vr;
         }
 
-
-        private object GetSignatureObject(byte[] signature, SignatureFormat signatureFormat)
+        private object GetDocument(byte[] signature, SignatureFormat signatureFormat)
         {
             if (signatureFormat == SignatureFormat.XAdES)
             {
@@ -88,7 +75,8 @@ namespace IntegraAfirmaNet.Services
             return b64Data;
         }
 
-        public AfirmaService(string url, Identity identity) : base  (url, identity)
+        public AfirmaService(string url, Identity identity)
+            : base(url, identity)
         {
         }
 
@@ -98,33 +86,74 @@ namespace IntegraAfirmaNet.Services
             _serverCert = serverCert;
         }
 
-        public void VerifySignature(byte[] signature, SignatureFormat signatureFormat)
+        public VerifyResponse VerifySignature(byte[] signature, SignatureFormat signatureFormat, bool includeDetails)
         {
-            object signatureObject = GetSignatureObject(signature, signatureFormat);
+            object document = GetDocument(signature, signatureFormat);
 
-            VerifyRequest request = BuildRequest(signatureObject, null);
+            IgnoreGracePeriod igp = new IgnoreGracePeriod();
 
-            DSSSignatureService ds = new DSSSignatureService(_baseUrl + "/DSSAfirmaVerify", _identity, _serverCert);
+            DocumentType doc = new DocumentType();
+            doc.ID = "ID_DOCUMENTO";
+            doc.Item = document;
 
-            string result = ds.verify(GetXmlElement<VerifyRequest>(request).OuterXml);
+            SignatureObject signatureObject = new SignatureObject();
+            signatureObject.Item = new SignaturePtr()
+            {
+                WhichDocument = "ID_DOCUMENTO"
+            };
+
+            ReturnVerificationReport verificationReport = new ReturnVerificationReport();
+            verificationReport.ReportOptions = new ReportOptionsType();
+            if (includeDetails)
+            {
+                verificationReport.ReportOptions.ReportDetailLevel = "urn:oasis:names:tc:dss:1.0:reportdetail:allDetails";
+            }
+            else
+            {
+                verificationReport.ReportOptions.ReportDetailLevel = "urn:oasis:names:tc:dss:1.0:reportdetail:noDetails";
+            }
+
+            VerifyRequest request = BuildRequest(new object[] { doc }, signatureObject, new XmlElement[] { GetXmlElement(igp), GetXmlElement(verificationReport) });
+
+            DSSAfirmaVerifyService ds = new DSSAfirmaVerifyService(_baseUrl + "/DSSAfirmaVerify", _identity, _serverCert);
+
+            string result = ds.verify(GetXmlElement(request).OuterXml);
 
             VerifyResponse response = DeserializeXml<VerifyResponse>(result);
 
-            if (!_validSignature.Equals(response.Result.ResultMajor))
+            if (ResultType.RequesterError.Equals(response.Result.ResultMajor) ||
+                ResultType.ResponderError.Equals(response.Result.ResultMajor))
             {
                 throw new AfirmaResultException(response.Result.ResultMajor, response.Result.ResultMinor, response.Result.ResultMessage.Value);
             }
+
+            return response;
         }
 
         public byte[] UpgradeSignature(byte[] signature, SignatureFormat signatureFormat, ReturnUpdatedSignatureType returnUpdateSignatureType)
         {
-            object signatureObject = GetSignatureObject(signature, signatureFormat);
+            object document = GetDocument(signature, signatureFormat);
 
-            VerifyRequest request = BuildRequest(signatureObject, returnUpdateSignatureType.ResourceName);
+            ReturnUpdatedSignature returnUpdated = new ReturnUpdatedSignature();
+            returnUpdated.Type = returnUpdateSignatureType.ResourceName;
 
-            DSSSignatureService ds = new DSSSignatureService(_baseUrl + "/DSSAfirmaVerify", _identity, _serverCert);
+            IgnoreGracePeriod igp = new IgnoreGracePeriod();
 
-            string result = ds.verify(GetXmlElement<VerifyRequest>(request).OuterXml);
+            DocumentType doc = new DocumentType();
+            doc.ID = "ID_DOCUMENTO";
+            doc.Item = document;
+
+            SignatureObject signatureObject = new SignatureObject();
+            signatureObject.Item = new SignaturePtr()
+            {
+                WhichDocument = "ID_DOCUMENTO"
+            };
+
+            VerifyRequest request = BuildRequest(new object[] { doc }, signatureObject, new XmlElement[] { GetXmlElement(igp), GetXmlElement(returnUpdated) });
+
+            DSSAfirmaVerifyService ds = new DSSAfirmaVerifyService(_baseUrl + "/DSSAfirmaVerify", _identity, _serverCert);
+
+            string result = ds.verify(GetXmlElement(request).OuterXml);
 
             VerifyResponse response = DeserializeXml<VerifyResponse>(result);
 
@@ -175,35 +204,51 @@ namespace IntegraAfirmaNet.Services
             }
         }
 
-        public mensajeSalidaRespuestaResultadoProcesamiento ValidarCertificado(X509Certificate2 certificado, string modoValidacion, bool obtenerInfo)
+        public VerifyResponse ValidateCertificate(X509Certificate2 certificate, bool includeDetails, bool returnReadableCertificateInfo)
         {
-            mensajeEntrada mensaje = new mensajeEntrada();
-            mensaje.peticion = mensajeEntradaPeticion.ValidarCertificado;
-            mensaje.versionMsg = "1.0";
-            mensaje.parametros = new mensajeEntradaParametros();
-            mensaje.parametros.idAplicacion = _identity.ApplicationId;
-            mensaje.parametros.modoValidacion = modoValidacion;
-            mensaje.parametros.certificado = certificado.GetRawCertData();
-            mensaje.parametros.obtenerInfo = obtenerInfo;
-
-            string peticion = GetXmlElement<mensajeEntrada>(mensaje).OuterXml;
-
-            ValidarCertificadoService client = new ValidarCertificadoService(_baseUrl + "/ValidarCertificado", _identity, _serverCert);
-
-            string result = client.ValidarCertificado(peticion);
-
-            mensajeSalida salida = DeserializeXml<mensajeSalida>(result);
-
-            if (salida.respuesta.Item is mensajeSalidaRespuestaResultadoProcesamiento)
+            List<XmlElement> optionalInputs = new List<XmlElement>();
+            
+            ReturnVerificationReport verificationReport = new ReturnVerificationReport();
+            verificationReport.CheckOptions = new CheckOptionsType();
+            verificationReport.CheckOptions.CheckCertificateStatus = true;
+            verificationReport.ReportOptions = new ReportOptionsType();
+            if (includeDetails)
             {
-                return salida.respuesta.Item as mensajeSalidaRespuestaResultadoProcesamiento;
+                verificationReport.ReportOptions.ReportDetailLevel = "urn:oasis:names:tc:dss:1.0:reportdetail:allDetails";
             }
             else
             {
-                mensajeSalidaRespuestaExcepcion excepcion = salida.respuesta.Item as mensajeSalidaRespuestaExcepcion;
-
-                throw new AfirmaResultException(excepcion.codigoError, excepcion.descripcion);
+                verificationReport.ReportOptions.ReportDetailLevel = "urn:oasis:names:tc:dss:1.0:reportdetail:noDetails";
             }
+
+            optionalInputs.Add(GetXmlElement(verificationReport));
+
+            if (returnReadableCertificateInfo)
+            {
+                optionalInputs.Add(GetXmlElement("<afxp:ReturnReadableCertificateInfo xmlns:afxp=\"urn:afirma:dss:1.0:profile:XSS:schema\"/>"));
+            }
+                      
+            X509DataType x509Data = new X509DataType();
+            x509Data.Items = new object[] { certificate.GetRawCertData() };
+            x509Data.ItemsElementName = new ItemsChoiceType[] { ItemsChoiceType.X509Certificate };
+            
+            SignatureObject signatureObject = new SignatureObject();
+            signatureObject.Item = new AnyType() { Any = new XmlElement[] { GetXmlElement(x509Data) } };
+
+            VerifyRequest request = BuildRequest(null, signatureObject, optionalInputs.ToArray());
+
+            DSSAfirmaVerifyCertificateService ds = new DSSAfirmaVerifyCertificateService(_baseUrl + "/DSSAfirmaVerifyCertificate", _identity, _serverCert);
+
+            string result = ds.verify(GetXmlElement(request).OuterXml);
+
+            VerifyResponse response = DeserializeXml<VerifyResponse>(result);
+
+            if (!ResultType.Success.Equals(response.Result.ResultMajor))
+            {
+                throw new AfirmaResultException(response.Result.ResultMajor, response.Result.ResultMinor, response.Result.ResultMessage.Value);
+            }
+
+            return response;
         }
     }
 }

@@ -20,9 +20,41 @@ namespace IntegraAfirmaNet.SignatureFramework
 
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Web.Services.WebServiceBindingAttribute(Name = "DSSAfirmaVerifySoapBinding", Namespace = "urn:oasis:names:tc:dss:1.0:core:schema")]
-    public partial class DSSSignatureService : BaseSoapClient
+    public partial class DSSAfirmaVerifyService : BaseSoapClient
     {
-        public DSSSignatureService(string url, Identity identity, X509Certificate2 serverCert) :
+        public DSSAfirmaVerifyService(string url, Identity identity, X509Certificate2 serverCert) :
+            base(url, identity, serverCert)
+        {
+
+        }
+
+        public new string Url
+        {
+            get
+            {
+                return base.Url;
+            }
+            set
+            {
+                base.Url = value;
+            }
+        }
+
+        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace = "urn:oasis:names:tc:dss:1.0:core:schema", ResponseNamespace = "urn:oasis:names:tc:dss:1.0:core:schema", Use = System.Web.Services.Description.SoapBindingUse.Literal)]
+        [return: System.Xml.Serialization.XmlElementAttribute("verifyReturn")]
+        public string verify(string dssXML)
+        {
+            object[] results = this.Invoke("verify", new object[] { dssXML });
+
+            return ((string)(results[0]));
+        }
+    }
+
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Web.Services.WebServiceBindingAttribute(Name = "DSSAfirmaVerifyCertificateSoapBinding", Namespace = "urn:oasis:names:tc:dss:1.0:core:schema")]
+    public partial class DSSAfirmaVerifyCertificateService : BaseSoapClient
+    {
+        public DSSAfirmaVerifyCertificateService(string url, Identity identity, X509Certificate2 serverCert) :
             base(url, identity, serverCert)
         {
 

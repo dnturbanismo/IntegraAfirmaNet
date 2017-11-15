@@ -17,7 +17,7 @@ namespace IntegraAfirmaNet.Services
         protected Identity _identity = null;
         protected X509Certificate2 _serverCert = null;
 
-        protected XmlElement GetXmlElement<T>(T source)
+        protected XmlElement GetXmlElement(object source)
         {
             using (MemoryStream ms = new MemoryStream())
             {

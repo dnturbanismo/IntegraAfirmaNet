@@ -111,7 +111,9 @@ namespace IntegraAfirmaNet.Test
 
                 TestContext.WriteLine(string.Format("{0}: {1}", DateTime.Now.ToShortTimeString(), "Verificando firma"));
 
-                _afirmaService.VerifySignature(firma, SignatureFormat.XAdES);
+                VerifyResponse resultado = _afirmaService.VerifySignature(firma, SignatureFormat.XAdES, true);
+
+                Assert.AreEqual(resultado.Result.ResultMajor, ResultType.ValidSignature.Uri);
 
                 TestContext.WriteLine(string.Format("{0}: {1}", DateTime.Now.ToShortTimeString(), "Firma válida"));
             }
@@ -134,7 +136,9 @@ namespace IntegraAfirmaNet.Test
 
                 TestContext.WriteLine(string.Format("{0}: {1}", DateTime.Now.ToShortTimeString(), "Verificando firma"));
 
-                _afirmaService.VerifySignature(firma, SignatureFormat.CAdES);
+                VerifyResponse resultado = _afirmaService.VerifySignature(firma, SignatureFormat.CAdES, true);
+
+                Assert.AreEqual(resultado.Result.ResultMajor, ResultType.ValidSignature.Uri);
 
                 TestContext.WriteLine(string.Format("{0}: {1}", DateTime.Now.ToShortTimeString(), "Firma válida"));
             }
@@ -157,9 +161,11 @@ namespace IntegraAfirmaNet.Test
 
                 TestContext.WriteLine(string.Format("{0}: {1}", DateTime.Now.ToShortTimeString(), "Validando certificado"));
 
-                mensajeSalidaRespuestaResultadoProcesamiento resultado = _afirmaService.ValidarCertificado(new X509Certificate2(rawCert), "0", false);
-                
-                TestContext.WriteLine(string.Format("{0}: Resultado de validación - {1}", DateTime.Now.ToShortTimeString(), resultado.ResultadoValidacion.descripcion));
+                VerifyResponse resultado = _afirmaService.ValidateCertificate(new X509Certificate2(rawCert), true, true);
+
+                Assert.AreEqual("urn:oasis:names:tc:dss:1.0:profiles:XSS:resultminor:valid:certificate:Definitive", resultado.Result.ResultMinor);
+
+                TestContext.WriteLine(string.Format("{0}: Resultado de validación - {1}", DateTime.Now.ToShortTimeString(), resultado.Result.ResultMessage.Value));
             }
             catch (AfirmaResultException afirmaEx)
             {
