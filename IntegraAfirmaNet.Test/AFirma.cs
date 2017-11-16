@@ -31,7 +31,7 @@ namespace IntegraAfirmaNet.Test
 
         public AFirma()
         {
-            string[] lines = File.ReadAllLines(@"C:\Temp\Config.txt");
+            string[] lines = File.ReadAllLines(@"C:\Temp\ConfigAfirma.txt");
 
             _appId = lines[0]; // Linea 1: identificador de la aplicacion
             _certPath = lines[1];  // Linea 2: ruta donde se encuentra el certificado para firmar las peticiones
@@ -39,7 +39,7 @@ namespace IntegraAfirmaNet.Test
 
             Identity identity = new Identity(new X509Certificate2(_certPath, _password), _appId);
 
-            _afirmaService = new AfirmaService("https://des-afirma.redsara.es/afirmaws/services", identity, 
+            _afirmaService = new AfirmaService("https://des-afirma.redsara.es/afirmaws/services", identity,
                 new X509Certificate2(ObtenerRecurso("IntegraAfirmaNet.Test.Certificados.SGAD_SE.cer")));
         }
 
@@ -243,10 +243,10 @@ namespace IntegraAfirmaNet.Test
 
         private byte[] ObtenerRecurso(string nombre)
         {
-            var assembly = Assembly.GetExecutingAssembly();            
+            var assembly = Assembly.GetExecutingAssembly();
 
             using (Stream stream = assembly.GetManifestResourceStream(nombre))
-            using (MemoryStream ms  = new MemoryStream())
+            using (MemoryStream ms = new MemoryStream())
             {
                 stream.CopyTo(ms);
 

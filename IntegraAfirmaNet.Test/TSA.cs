@@ -29,7 +29,7 @@ namespace IntegraAfirmaNet.Test
 
         public TSA()
         {
-            string[] lines = File.ReadAllLines(@"C:\Temp\Config.txt");
+            string[] lines = File.ReadAllLines(@"C:\Temp\ConfigTSA.txt");
 
             _appId = lines[0]; // Linea 1: identificador de la aplicacion
             _certPath = lines[1];  // Linea 2: ruta donde se encuentra el certificado para firmar las peticiones
@@ -62,7 +62,7 @@ namespace IntegraAfirmaNet.Test
                 DocumentHash documentHash = new DocumentHash();
                 documentHash.DigestMethod = new DigestMethodType();
                 documentHash.DigestMethod.Algorithm = "http://www.w3.org/2001/04/xmlenc#sha256";
-                documentHash.DigestValue = CrearHashTexto("BLABLABLA");
+                documentHash.DigestValue = CrearHashTexto("Candeporras");
 
                 var timeStamp = _tsaService.CreateTimeStamp(RequestSignatureType.ASN1, documentHash);
             }
