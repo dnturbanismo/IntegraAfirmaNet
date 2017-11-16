@@ -35,14 +35,7 @@ namespace IntegraAfirmaNet.SignatureFramework
             /// <returns>null si ha ocurrido algún error en el acceso al almacén</returns>
             public override X509SecurityToken GetToken()
             {
-                if (certificate == null)
-                {
-                    return null;
-                }
-                else
-                {
-                    return new X509SecurityToken(certificate);
-                }
+                return new X509SecurityToken(certificate);
             }
         }
 

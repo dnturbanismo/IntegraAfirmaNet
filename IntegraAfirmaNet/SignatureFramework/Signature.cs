@@ -410,15 +410,15 @@ namespace IntegraAfirmaNet.SignatureFramework
 
                 if (signer != null)
                 {
-                    if (sd.DigestAlgorithm == typeof(SHA1CryptoServiceProvider).FullName)
+                    if (sd.DigestAlgorithm == typeof(SHA1CryptoServiceProvider).FullName || sd.DigestAlgorithm == typeof(SHA1Cng).FullName)
                     {
                         signer.SetHashAlgorithm("SHA1");
                     }
-                    else if (sd.DigestAlgorithm == typeof(SHA256Managed).FullName)
+                    else if (sd.DigestAlgorithm == typeof(SHA256Managed).FullName || sd.DigestAlgorithm == typeof(SHA256Cng).FullName)
                     {
                         signer.SetHashAlgorithm("SHA256");
                     }
-                    else if (sd.DigestAlgorithm == typeof(SHA512Managed).FullName)
+                    else if (sd.DigestAlgorithm == typeof(SHA512Managed).FullName || sd.DigestAlgorithm == typeof(SHA512Cng).FullName)
                     {
                         signer.SetHashAlgorithm("SHA512");
                     }
