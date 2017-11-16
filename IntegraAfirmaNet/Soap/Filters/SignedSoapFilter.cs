@@ -50,14 +50,15 @@ namespace IntegraAfirmaNet.Soap.Filters
             IdAttTs.Value = "Timestamp-" + Guid.NewGuid().ToString();
 
             XmlNode created = envelope.CreateNode(XmlNodeType.Element, "wsu:Created", "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd");
-            created.InnerText = DateTime.Now.ToString("o");
+            created.InnerText = DateTime.Now.ToUniversalTime().ToString("o");
 
-            DateTime expiration = DateTime.Now.AddMinutes(3);
+            DateTime expiration = DateTime.Now.AddMinutes(5);
             XmlNode expires = envelope.CreateNode(XmlNodeType.Element, "wsu:Expires", "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd");
-            expires.InnerText = expiration.ToString("o");
+            expires.InnerText = expiration.ToUniversalTime().ToString("o");
+
             timestampElement.Attributes.Append(IdAttTs);
-            timestampElement.AppendChild(expires);
             timestampElement.AppendChild(created);
+            timestampElement.AppendChild(expires);
 
             XmlNode binarySecurityTokenNode = envelope.CreateNode(
                 XmlNodeType.Element,
