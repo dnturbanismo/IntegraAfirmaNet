@@ -348,11 +348,11 @@ namespace IntegraAfirmaNet.SignatureFramework
                 SignatureDescription sd = GetSignatureDescription(signature.SignedInfo.SignatureMethod);
 
                 byte[] hash = Hash(sd.DigestAlgorithm);
-                AsymmetricSignatureDeformatter verifier = (AsymmetricSignatureDeformatter)CryptoConfig.CreateFromName(sd.DeformatterAlgorithm);
+                AsymmetricSignatureDeformatter verifier = sd.CreateDeformatter(key); //(AsymmetricSignatureDeformatter)CryptoConfig.CreateFromName(sd.DeformatterAlgorithm);
                 if (verifier != null)
                 {
-                    verifier.SetHashAlgorithm(sd.DigestAlgorithm);
-                    verifier.SetKey(key);
+                    //verifier.SetHashAlgorithm(sd.DigestAlgorithm);
+                    //verifier.SetKey(key);
                     result = verifier.VerifySignature(hash, signature.SignatureValue);
                 }
                 else
@@ -406,9 +406,9 @@ namespace IntegraAfirmaNet.SignatureFramework
                 if (key is DSA)
                     signer = new DSASignatureFormatter(key);
                 else if (key is RSA)
-                    signer = new RSAPKCS1SignatureFormatter(key);
+                    signer = sd.CreateFormatter(key); //new RSAPKCS1SignatureFormatter(key);
 
-                if (signer != null)
+                /*if (signer != null)
                 {
                     if (sd.DigestAlgorithm == typeof(SHA1CryptoServiceProvider).FullName)
                     {
@@ -424,7 +424,9 @@ namespace IntegraAfirmaNet.SignatureFramework
                     }
 
                     signature.SignatureValue = signer.CreateSignature(hash);
-                }
+                }*/
+
+                signature.SignatureValue = signer.CreateSignature(hash);
             }
         }
 
