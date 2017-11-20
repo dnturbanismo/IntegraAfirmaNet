@@ -1,4 +1,5 @@
-﻿using IntegraAfirmaNet.Soap.Assertions;
+﻿using IntegraAfirmaNet.SignatureFramework;
+using IntegraAfirmaNet.Soap.Assertions;
 using Microsoft.Web.Services3;
 using Microsoft.Web.Services3.Security;
 using Microsoft.Web.Services3.Security.Tokens;
@@ -93,7 +94,7 @@ namespace IntegraAfirmaNet.Soap.Filters
 
             SignatureFramework.SignedInfo si = new SignatureFramework.SignedInfo();
 
-            si.SignatureMethod = SignatureFramework.XmlSignatureConstants.XmlDsigSHA256Url;
+            si.SignatureMethod = XmlSignatureConstants.XmlDsigRSAwithSHA1Url;
 
             si.CanonicalizationMethod = SignatureFramework.XmlSignatureConstants.XmlDsigExcC14NTransformUrl;
 

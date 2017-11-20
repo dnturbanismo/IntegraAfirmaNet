@@ -45,7 +45,8 @@ namespace IntegraAfirmaNet.SignatureFramework
         public const string XmlDsigC14NTransformUrl = "http://www.w3.org/TR/2001/REC-xml-c14n-20010315#";
         public const string XmlDsigC14NWithCommentsTransformUrl = XmlDsigC14NTransformUrl + "WithComments";
         public const string XmlDsigSHA1Url = NamespaceURI + "sha1";
-        public const string XmlDsigSHA256Url = "http://www.w3.org/2001/04/xmldsig-more#rsa-sha256";
-        public const string XmlDsigSHA512Url = "http://www.w3.org/2001/04/xmldsig-more#rsa-sha512";
+        public const string XmlDsigRSAwithSHA1Url = "http://www.w3.org/2000/09/xmldsig#rsa-sha1";
+        public const string XmlDsigRSAwithSHA256Url = "http://www.w3.org/2001/04/xmldsig-more#rsa-sha256";
+        public const string XmlDsigRSAwithSHA512Url = "http://www.w3.org/2001/04/xmldsig-more#rsa-sha512";
     }
 }

@@ -408,7 +408,7 @@ namespace IntegraAfirmaNet.SignatureFramework
                 else if (key is RSA)
                     signer = sd.CreateFormatter(key); //new RSAPKCS1SignatureFormatter(key);
 
-                /*if (signer != null)
+                if (signer != null)
                 {
                     if (sd.DigestAlgorithm == typeof(SHA1CryptoServiceProvider).FullName || sd.DigestAlgorithm == typeof(SHA1Cng).FullName)
                     {
@@ -424,9 +424,7 @@ namespace IntegraAfirmaNet.SignatureFramework
                     }
 
                     signature.SignatureValue = signer.CreateSignature(hash);
-                }*/
-
-                signature.SignatureValue = signer.CreateSignature(hash);
+                }
             }
         }
 
