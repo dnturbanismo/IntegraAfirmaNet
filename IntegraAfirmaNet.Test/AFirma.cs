@@ -73,6 +73,38 @@ namespace IntegraAfirmaNet.Test
         }
 
         [TestMethod]
+        public void AmpliarAXadesATargetSigner()
+        {
+            try
+            {
+                byte[] firma = ObtenerRecurso("IntegraAfirmaNet.Test.Firmas.xades_internally_detached.xml");
+
+                byte[] cert = ObtenerRecurso("IntegraAfirmaNet.Test.Certificados.certificado_firma.cer");
+
+                TestContext.WriteLine(string.Format("{0}: {1}", DateTime.Now.ToShortTimeString(), "Ampliando firma"));
+
+                byte[] firmaAmpliada = _afirmaService.UpgradeSignature(firma, SignatureFormat.XAdES, ReturnUpdatedSignatureType.AdES_A, cert);
+
+                string resultado = TestContext.TestRunResultsDirectory + "\\FirmaXades-A.xml";
+
+                File.WriteAllBytes(resultado, firmaAmpliada);
+
+                TestContext.AddResultFile(resultado);
+
+                TestContext.WriteLine(string.Format("{0}: {1}", DateTime.Now.ToShortTimeString(), "Firma ampliada"));
+            }
+            catch (AfirmaResultException afirmaEx)
+            {
+                Assert.Fail(string.Format("Error devuelto por @firma: {0}", afirmaEx.Message));
+            }
+            catch (Exception ex)
+            {
+                Assert.Fail(string.Format("Unexpected exception of type {0} caught: {1}", ex.GetType(), ex.Message));
+            }
+        }
+
+
+        [TestMethod]
         public void AmpliarACadesA()
         {
             try
@@ -115,7 +147,7 @@ namespace IntegraAfirmaNet.Test
 
                 TestContext.WriteLine(string.Format("{0}: {1}", DateTime.Now.ToShortTimeString(), "Ampliando firma"));
 
-                byte[] firmaAmpliada = _afirmaService.UpgradeSignature(firma, SignatureFormat.CAdES, ReturnUpdatedSignatureType.AdES_A, new DocumentBaseType[] { docHash });
+                byte[] firmaAmpliada = _afirmaService.UpgradeSignature(firma, SignatureFormat.CAdES, ReturnUpdatedSignatureType.AdES_A, null, new DocumentBaseType[] { docHash });
 
                 string resultado = TestContext.TestRunResultsDirectory + "\\FirmaCades-Detached-A.csig";
 

@@ -63,6 +63,7 @@
     <EmbeddedResource Include="Certificados\lp_qse_es_sw_kpsc_valido.crt" />
     <EmbeddedResource Include="Firmas\cades_attached_implicit.csig" />
     <EmbeddedResource Include="Firmas\cades_detached_explicit.csig" />
+    <EmbeddedResource Include="Certificados\certificado_firma.cer" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

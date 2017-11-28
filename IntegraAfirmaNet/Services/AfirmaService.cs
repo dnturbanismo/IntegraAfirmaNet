@@ -144,7 +144,7 @@ namespace IntegraAfirmaNet.Services
         }
 
         public byte[] UpgradeSignature(byte[] signature, SignatureFormat signatureFormat, ReturnUpdatedSignatureType returnUpdateSignatureType,
-            IEnumerable<DocumentBaseType> otherInputDocuments = null)
+            byte[] targetSignerCert = null, IEnumerable<DocumentBaseType> otherInputDocuments = null)
         {
             object document = GetDocument(signature, signatureFormat);
 
@@ -174,7 +174,19 @@ namespace IntegraAfirmaNet.Services
                 }
             }
 
-            VerifyRequest request = BuildRequest(documents, signatureObject, new XmlElement[] { GetXmlElement(igp), GetXmlElement(returnUpdated) });
+            List<XmlElement> optionalInputs = new List<XmlElement>();
+            optionalInputs.Add(GetXmlElement(igp));
+            optionalInputs.Add(GetXmlElement(returnUpdated));
+
+            if (targetSignerCert != null)
+            {
+                TargetSigner targetSigner = new TargetSigner();
+                targetSigner.Value = targetSignerCert;
+
+                optionalInputs.Add(GetXmlElement(targetSigner));
+            }
+
+            VerifyRequest request = BuildRequest(documents, signatureObject, optionalInputs);
 
             DSSAfirmaVerifyService ds = new DSSAfirmaVerifyService(_baseUrl + "/DSSAfirmaVerify", _identity, _serverCert);
 

@@ -32,7 +32,7 @@ namespace IntegraAfirmaNet.Services
             ClaimedIdentity identity = new ClaimedIdentity();
             identity.idAplicacion = _identity.ApplicationId;
 
-            XmlElement signatureTypeElement = GetXmlElement(string.Format("<SignatureType>{0}</SignatureType>", signatureType.Uri));
+            TimestampSignatureType signatureTypeElement = new TimestampSignatureType() { Value = signatureType.Uri };
 
             sr.OptionalInputs = new AnyType();
 
@@ -42,11 +42,11 @@ namespace IntegraAfirmaNet.Services
 
                 XmlElement previousTimestampElement = GetXmlElement(string.Format(renewXml, GetXmlElement(previousTimestamp).OuterXml));
 
-                sr.OptionalInputs.Any = new XmlElement[] { signatureTypeElement, GetXmlElement(identity), previousTimestampElement };
+                sr.OptionalInputs.Any = new XmlElement[] { GetXmlElement(signatureTypeElement), GetXmlElement(identity), previousTimestampElement };
             }
             else
             {
-                sr.OptionalInputs.Any = new XmlElement[] { signatureTypeElement, GetXmlElement(identity) };
+                sr.OptionalInputs.Any = new XmlElement[] { GetXmlElement(signatureTypeElement), GetXmlElement(identity) };
             }
 
             sr.InputDocuments = new InputDocuments();
