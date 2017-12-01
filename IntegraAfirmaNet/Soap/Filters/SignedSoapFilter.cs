@@ -94,7 +94,7 @@ namespace IntegraAfirmaNet.Soap.Filters
 
             SignatureFramework.SignedInfo si = new SignatureFramework.SignedInfo();
 
-            si.SignatureMethod = XmlSignatureConstants.XmlDsigRSAwithSHA1Url;
+            si.SignatureMethod = XmlSignatureConstants.XmlDsigRSAwithSHA256Url;
 
             si.CanonicalizationMethod = SignatureFramework.XmlSignatureConstants.XmlDsigExcC14NTransformUrl;
 

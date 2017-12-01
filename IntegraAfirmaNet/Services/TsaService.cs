@@ -109,7 +109,7 @@ namespace IntegraAfirmaNet.Services
             }
         }
 
-        public void VerifyTimestamp(DocumentBaseType document, Timestamp timeStamp)
+        public VerifyResponse VerifyTimestamp(DocumentBaseType document, Timestamp timeStamp)
         {
             VerifyRequest request = BuildVerifyRequest(document, timeStamp);
 
@@ -121,6 +121,8 @@ namespace IntegraAfirmaNet.Services
             {
                 throw new AfirmaResultException(response.Result.ResultMajor, response.Result.ResultMessage.Value);
             }
+
+            return response;
         }
     }
 }

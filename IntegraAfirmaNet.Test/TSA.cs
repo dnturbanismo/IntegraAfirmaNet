@@ -10,6 +10,7 @@ using IntegraAfirmaNet.Exceptions;
 using IntegraAfirmaNet.Schemas;
 using System.IO;
 using System.Reflection;
+using System.Text;
 
 namespace IntegraAfirmaNet.Test
 {
@@ -44,27 +45,55 @@ namespace IntegraAfirmaNet.Test
         [TestMethod]
         public void CreateTimeStamp()
         {
-            /*ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
-            ServicePointManager.ServerCertificateValidationCallback += (sender, certificate, chain, sslPolicyErrors) => true;
-            using (var servicio = new CreateTimeStampBinding())
-            {
-                //servicio.SoapVersion = SoapProtocolVersion.Soap11; 
-                var resultado = servicio.createTimeStampCertificado(
-                    @"c:\Temp\sello_componente_DIPUALBA.ES.p12",
-                    System.IO.File.ReadAllText(@"C:\temp\pin.txt"),
-                    GenerarSignRequest());
-                TestContext.WriteLine(DateTime.Now.ToShortTimeString() + " " + resultado.Result.ResultMajor);
-                Assert.AreEqual("urn:oasis:names:tc:dss:1.0:resultmajor:Success", resultado.Result.ResultMajor);
-            }*/
-
             try
             {
                 DocumentHash documentHash = new DocumentHash();
                 documentHash.DigestMethod = new DigestMethodType();
                 documentHash.DigestMethod.Algorithm = "http://www.w3.org/2001/04/xmlenc#sha256";
-                documentHash.DigestValue = CrearHashTexto("Candeporras");
+                documentHash.DigestValue = CrearHashTexto("TEXTODEPRUEBA");
+
+                TestContext.WriteLine(string.Format("{0}: {1}", DateTime.Now.ToShortTimeString(), "Creando sello de tiempo"));
 
                 var timeStamp = _tsaService.CreateTimeStamp(RequestSignatureType.ASN1, documentHash);
+
+                string resultado = TestContext.TestRunResultsDirectory + "\\Sello_Base64.txt";
+
+                File.WriteAllText(resultado, Convert.ToBase64String(timeStamp.Item as byte[]));
+
+                TestContext.AddResultFile(resultado);
+
+                TestContext.WriteLine(string.Format("{0}: {1}", DateTime.Now.ToShortTimeString(), "Sello aplicado"));
+            }
+            catch (AfirmaResultException afirmaEx)
+            {
+                Assert.Fail(string.Format("Error devuelto por @firma: {0}", afirmaEx.Message));
+            }
+            catch (Exception ex)
+            {
+                Assert.Fail(string.Format("Unexpected exception of type {0} caught: {1}", ex.GetType(), ex.Message));
+            }
+        }
+
+        [TestMethod]
+        public void ValidarSello()
+        {
+            try
+            {
+                string sellob64 = Encoding.UTF8.GetString(ObtenerRecurso("IntegraAfirmaNet.Test.SellosTiempo.Sello_Base64.txt"));
+                
+                DocumentHash documentHash = new DocumentHash();
+                documentHash.DigestMethod = new DigestMethodType();
+                documentHash.DigestMethod.Algorithm = "http://www.w3.org/2001/04/xmlenc#sha256";
+                documentHash.DigestValue = CrearHashTexto("TEXTODEPRUEBA");
+
+                TestContext.WriteLine(string.Format("{0}: {1}", DateTime.Now.ToShortTimeString(), "Validando sello de tiempo"));
+
+                Timestamp timeStamp = new Timestamp();
+                timeStamp.Item = Convert.FromBase64String(sellob64);
+
+                _tsaService.VerifyTimestamp(documentHash, timeStamp);
+
+                TestContext.WriteLine(string.Format("{0}: {1}", DateTime.Now.ToShortTimeString(), "Sello válido"));
             }
             catch (AfirmaResultException afirmaEx)
             {
@@ -89,39 +118,8 @@ namespace IntegraAfirmaNet.Test
             }
         }
 
-        /*        private static SignRequest GenerarSignRequest()
-                {
-                    var signRequest = new SignRequest { OptionalInputs = new AnyType() };
 
-
-                    //Dim applicationIdentity As New ApplicationIdentity("dipualba.sellado_general")
-
-
-                    XmlDocument xmlSeccionOptionalDoc = new XmlDocument();
-
-                    xmlSeccionOptionalDoc.LoadXml("<OptionalInputs xmlns=\"urn:oasis:names:tc:dss:1.0:core:schema\">"
-                        + "<SignatureType>urn:oasis:names:tc:dss:1.0:core:schema</SignatureType>" 
-                        + "<ClaimedIdentity>" 
-                        + "<idAplicacion>dipualba.sellado_general</idAplicacion>" 
-                        + "</ClaimedIdentity></OptionalInputs>");
-
-                    signRequest.OptionalInputs.Any = new XmlElement[] {
-                        (XmlElement)xmlSeccionOptionalDoc.ChildNodes.Item(0).FirstChild,
-                        (XmlElement)xmlSeccionOptionalDoc.ChildNodes.Item(0).LastChild
-                    };
-
-                    DocumentHash documentHash = new DocumentHash();
-                    documentHash.DigestMethod = new DigestMethodType();
-                    documentHash.DigestMethod.Algorithm = "http://www.w3.org/2001/04/xmlenc#sha256";
-                    documentHash.DigestValue = new DigestValueType();
-                    documentHash.DigestValue.Value = CrearHashTexto("BLABLABLA");
-                    signRequest.InputDocuments = new InputDocuments();
-                    signRequest.InputDocuments.Items = new object[] { documentHash };
-
-                    return signRequest;
-                }*/
-
-        protected static byte[] CrearHashTexto(string texto)
+        private byte[] CrearHashTexto(string texto)
         {
             System.Security.Cryptography.SHA256Managed sha256 = new System.Security.Cryptography.SHA256Managed();
 
