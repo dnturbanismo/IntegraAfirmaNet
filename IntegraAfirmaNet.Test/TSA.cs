@@ -11,6 +11,7 @@ using IntegraAfirmaNet.Schemas;
 using System.IO;
 using System.Reflection;
 using System.Text;
+using System.Xml.Serialization;
 
 namespace IntegraAfirmaNet.Test
 {
@@ -38,12 +39,11 @@ namespace IntegraAfirmaNet.Test
 
             Identity identity = new Identity(new X509Certificate2(_certPath, _password), _appId);
 
-            _tsaService = new TsaService("https://des-tsafirma.redsara.es/tsamap", identity,
-                new X509Certificate2(ObtenerRecurso("IntegraAfirmaNet.Test.Certificados.SGAD_SE.cer")));
+            _tsaService = new TsaService("https://des-tsafirma.redsara.es/tsamap", identity, null);
         }
 
         [TestMethod]
-        public void CreateTimeStamp()
+        public void CreateTimeStampASN1()
         {
             try
             {
@@ -75,7 +75,46 @@ namespace IntegraAfirmaNet.Test
         }
 
         [TestMethod]
-        public void ValidarSello()
+        public void CreateTimeStampXML()
+        {
+            try
+            {
+                DocumentHash documentHash = new DocumentHash();
+                documentHash.DigestMethod = new DigestMethodType();
+                documentHash.DigestMethod.Algorithm = "http://www.w3.org/2001/04/xmlenc#sha256";
+                documentHash.DigestValue = CrearHashTexto("TEXTODEPRUEBA");
+
+                TestContext.WriteLine(string.Format("{0}: {1}", DateTime.Now.ToShortTimeString(), "Creando sello de tiempo"));
+
+                var timeStamp = _tsaService.CreateTimeStamp(RequestSignatureType.XML, documentHash);
+                
+                string resultado = TestContext.TestRunResultsDirectory + "\\Sello.xml";
+
+                SignatureType sello = timeStamp.Item as SignatureType;
+
+                XmlSerializer serializer = new XmlSerializer(typeof(SignatureType));
+
+                using (XmlWriter writer = XmlWriter.Create(resultado))
+                {
+                    serializer.Serialize(writer, sello);
+                }
+                
+                TestContext.AddResultFile(resultado);
+
+                TestContext.WriteLine(string.Format("{0}: {1}", DateTime.Now.ToShortTimeString(), "Sello aplicado"));
+            }
+            catch (AfirmaResultException afirmaEx)
+            {
+                Assert.Fail(string.Format("Error devuelto por @firma: {0}", afirmaEx.Message));
+            }
+            catch (Exception ex)
+            {
+                Assert.Fail(string.Format("Unexpected exception of type {0} caught: {1}", ex.GetType(), ex.Message));
+            }
+        }
+
+        [TestMethod]
+        public void ValidarSelloASN1()
         {
             try
             {
@@ -105,6 +144,40 @@ namespace IntegraAfirmaNet.Test
             }
         }
 
+        [TestMethod]
+        public void ValidarSelloXML()
+        {
+            // NOTA: el servidor de desarrollo devuelve java.lang.NullPointerException, en producción funciona correctamente
+            
+            try
+            {               
+                XmlSerializer serializer = new XmlSerializer(typeof(SignatureType));
+                SignatureType sello = (SignatureType)serializer.Deserialize(ObtenerStreamRecurso("IntegraAfirmaNet.Test.SellosTiempo.Sello.xml"));
+              
+                DocumentHash documentHash = new DocumentHash();
+                documentHash.DigestMethod = new DigestMethodType();
+                documentHash.DigestMethod.Algorithm = "http://www.w3.org/2001/04/xmlenc#sha256";
+                documentHash.DigestValue = CrearHashTexto("TEXTODEPRUEBA");
+
+                TestContext.WriteLine(string.Format("{0}: {1}", DateTime.Now.ToShortTimeString(), "Validando sello de tiempo"));
+
+                Timestamp timeStamp = new Timestamp();
+                timeStamp.Item = sello;
+
+                _tsaService.VerifyTimestamp(documentHash, timeStamp);
+
+                TestContext.WriteLine(string.Format("{0}: {1}", DateTime.Now.ToShortTimeString(), "Sello válido"));
+            }
+            catch (AfirmaResultException afirmaEx)
+            {
+                Assert.Fail(string.Format("Error devuelto por @firma: {0}", afirmaEx.Message));
+            }
+            catch (Exception ex)
+            {
+                Assert.Fail(string.Format("Unexpected exception of type {0} caught: {1}", ex.GetType(), ex.Message));
+            }
+        }
+
         private byte[] ObtenerRecurso(string nombre)
         {
             var assembly = Assembly.GetExecutingAssembly();
@@ -118,6 +191,12 @@ namespace IntegraAfirmaNet.Test
             }
         }
 
+        private Stream ObtenerStreamRecurso(string nombre)
+        {
+            var assembly = Assembly.GetExecutingAssembly();
+
+            return assembly.GetManifestResourceStream(nombre);
+        }
 
         private byte[] CrearHashTexto(string texto)
         {

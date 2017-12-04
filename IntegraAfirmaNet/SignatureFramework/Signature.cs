@@ -6,6 +6,7 @@ using System.Security.Cryptography.Xml;
 using System.Xml.XPath;
 using System.IO;
 using System.Collections.Generic;
+using System.Security.Cryptography.X509Certificates;
 
 
 namespace IntegraAfirmaNet.SignatureFramework
@@ -140,7 +141,7 @@ namespace IntegraAfirmaNet.SignatureFramework
                 doc = envdoc;
             else
             {
-                XmlElement element = GetIdElement(envdoc, r.Uri.Remove(0, 1));
+                XmlElement element = GetIdElement(envdoc, r.Uri != null ? r.Uri.Remove(0, 1) : null);
                 doc.LoadXml(element.OuterXml);
 
                 if (r.TransformChain.Count > 0)
@@ -460,6 +461,12 @@ namespace IntegraAfirmaNet.SignatureFramework
                         key = DSA.Create();
                     else if (kic is RSAKeyValue)
                         key = RSA.Create();
+                    else if (kic is KeyInfoX509Data)
+                    {
+                        KeyInfoX509Data keyInfoData = kic as KeyInfoX509Data;
+
+                        return (keyInfoData.Certificates[0] as X509Certificate2).PublicKey.Key;
+                    }
 
                     if (key != null)
                     {

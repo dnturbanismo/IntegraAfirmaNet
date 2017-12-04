@@ -266,7 +266,7 @@ namespace IntegraAfirmaNet.Services
             }
                       
             X509DataType x509Data = new X509DataType();
-            x509Data.Items = new object[] { certificate.GetRawCertData() };
+            x509Data.Items = new object[] { new X509Cert(certificate.GetRawCertData()) };
             x509Data.ItemsElementName = new ItemsChoiceType[] { ItemsChoiceType.X509Certificate };
             
             SignatureObject signatureObject = new SignatureObject();

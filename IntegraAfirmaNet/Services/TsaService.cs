@@ -55,7 +55,7 @@ namespace IntegraAfirmaNet.Services
             return sr;
         }
 
-        private VerifyRequest BuildVerifyRequest(DocumentBaseType document, Timestamp timeStamp)
+        private VerifyRequest BuildVerifyRequest(DocumentBaseType document, Timestamp timeStamp, bool returnProcessingDetails)
         {
             VerifyRequest vr = new VerifyRequest();
 
@@ -63,8 +63,16 @@ namespace IntegraAfirmaNet.Services
             identity.idAplicacion = _identity.ApplicationId;
 
             vr.OptionalInputs = new AnyType();
-            vr.OptionalInputs.Any = new XmlElement[] { GetXmlElement(identity) };
 
+            if (returnProcessingDetails)
+            {
+                vr.OptionalInputs.Any = new XmlElement[] { GetXmlElement(identity), GetXmlElement("<dss:ReturnProcessingDetails xmlns:dss=\"urn:oasis:names:tc:dss:1.0:core:schema\"/>") };
+            }
+            else
+            {
+                vr.OptionalInputs.Any = new XmlElement[] { GetXmlElement(identity) };
+            }
+            
             vr.SignatureObject = new SignatureObject();
             vr.SignatureObject.Item = timeStamp;
             vr.InputDocuments = new InputDocuments();
@@ -109,9 +117,9 @@ namespace IntegraAfirmaNet.Services
             }
         }
 
-        public VerifyResponse VerifyTimestamp(DocumentBaseType document, Timestamp timeStamp)
+        public VerifyResponse VerifyTimestamp(DocumentBaseType document, Timestamp timeStamp, bool returnProcessingDetails = false)
         {
-            VerifyRequest request = BuildVerifyRequest(document, timeStamp);
+            VerifyRequest request = BuildVerifyRequest(document, timeStamp, returnProcessingDetails);
 
             VerifyTimeSoapClient tsaSoapClient = new VerifyTimeSoapClient(_baseUrl + "/VerifyTimeStampWS", _identity, _serverCert);
 
