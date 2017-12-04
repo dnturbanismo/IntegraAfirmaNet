@@ -178,6 +178,51 @@ namespace IntegraAfirmaNet.Test
             }
         }
 
+
+        [TestMethod]
+        public void ReSelladoXML()
+        {
+            try
+            {
+                XmlSerializer serializer = new XmlSerializer(typeof(SignatureType));
+                SignatureType sello = (SignatureType)serializer.Deserialize(ObtenerStreamRecurso("IntegraAfirmaNet.Test.SellosTiempo.Sello.xml"));
+
+                DocumentHash documentHash = new DocumentHash();
+                documentHash.DigestMethod = new DigestMethodType();
+                documentHash.DigestMethod.Algorithm = "http://www.w3.org/2001/04/xmlenc#sha256";
+                documentHash.DigestValue = CrearHashTexto("TEXTODEPRUEBA");
+
+                TestContext.WriteLine(string.Format("{0}: {1}", DateTime.Now.ToShortTimeString(), "Validando sello de tiempo"));
+
+                Timestamp timeStamp = new Timestamp();
+                timeStamp.Item = sello;
+
+                var newTimestamp = _tsaService.RenewTimeStamp(RequestSignatureType.XML, timeStamp, documentHash);
+
+                sello = newTimestamp.Item as SignatureType;
+
+                string resultado = TestContext.TestRunResultsDirectory + "\\Sello.xml";
+
+                using (XmlWriter writer = XmlWriter.Create(resultado))
+                {
+                    serializer.Serialize(writer, sello);
+                }
+
+                TestContext.AddResultFile(resultado);
+
+                TestContext.WriteLine(string.Format("{0}: {1}", DateTime.Now.ToShortTimeString(), "Sello aplicado"));
+            }
+            catch (AfirmaResultException afirmaEx)
+            {
+                Assert.Fail(string.Format("Error devuelto por @firma: {0}", afirmaEx.Message));
+            }
+            catch (Exception ex)
+            {
+                Assert.Fail(string.Format("Unexpected exception of type {0} caught: {1}", ex.GetType(), ex.Message));
+            }
+        }
+
+
         private byte[] ObtenerRecurso(string nombre)
         {
             var assembly = Assembly.GetExecutingAssembly();

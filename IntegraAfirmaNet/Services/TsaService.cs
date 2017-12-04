@@ -38,7 +38,7 @@ namespace IntegraAfirmaNet.Services
 
             if (previousTimestamp != null)
             {
-                string renewXml = "<RenewTimestamp><PreviousTimestamp>{0}</PreviousTimestamp></RenewTimestamp>";
+                string renewXml = "<dst:RenewTimestamp xmlns:dst=\"urn:oasis:names:tc:dss:1.0:profiles:TimeStamp:schema#\"><dst:PreviousTimestamp>{0}</dst:PreviousTimestamp></dst:RenewTimestamp>";
 
                 XmlElement previousTimestampElement = GetXmlElement(string.Format(renewXml, GetXmlElement(previousTimestamp).OuterXml));
 
