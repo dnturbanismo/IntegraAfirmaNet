@@ -13,10 +13,12 @@ namespace IntegraAfirmaNet.SignatureFramework
     class InputSoapFilter : SoapFilter
     {
         private X509Certificate2 _serverCert;
+        private bool _checkResponseSignature;
 
-        public InputSoapFilter(X509Certificate2 serverCert)
+        public InputSoapFilter(X509Certificate2 serverCert, bool checkResponseSignature)
         {
             _serverCert = serverCert;
+            _checkResponseSignature = checkResponseSignature;
         }
 
         public override SoapFilterResult ProcessMessage(SoapEnvelope envelope)
@@ -30,40 +32,43 @@ namespace IntegraAfirmaNet.SignatureFramework
 
             if (securityNode != null)
             {
-                // VALIDACIÓN DE LA FIRMA                
-                XmlDocument doc = new XmlDocument();
-                doc.LoadXml(envelope.OuterXml);
-
-                XmlNode securityTokenNode = doc.SelectSingleNode("soapenv:Envelope/soapenv:Header/wsse:Security/wsse:BinarySecurityToken", xmlNamespaceManager);
-
-                X509Certificate2 cert = new X509Certificate2(Convert.FromBase64String(securityTokenNode.InnerText));
-                AsymmetricAlgorithm publicKey = null;
-
-                // Si se establece el certificado del servidor se comprueba que sea el mismo que firma la respuesta
-                if (_serverCert != null)
+                if (_checkResponseSignature)
                 {
-                    if (cert.GetCertHashString() != _serverCert.GetCertHashString())
+                    // VALIDACIÓN DE LA FIRMA                
+                    XmlDocument doc = new XmlDocument();
+                    doc.LoadXml(envelope.OuterXml);
+
+                    XmlNode securityTokenNode = doc.SelectSingleNode("soapenv:Envelope/soapenv:Header/wsse:Security/wsse:BinarySecurityToken", xmlNamespaceManager);
+
+                    X509Certificate2 cert = new X509Certificate2(Convert.FromBase64String(securityTokenNode.InnerText));
+                    AsymmetricAlgorithm publicKey = null;
+
+                    // Si se establece el certificado del servidor se comprueba que sea el mismo que firma la respuesta
+                    if (_serverCert != null)
                     {
-                        throw new Exception("El certificado que firma la respuesta no coincide con el dado de alta");
+                        if (cert.GetCertHashString() != _serverCert.GetCertHashString())
+                        {
+                            throw new Exception("El certificado que firma la respuesta no coincide con el dado de alta");
+                        }
+
+                        publicKey = _serverCert.PublicKey.Key;
+                    }
+                    else // se utiliza entonces el certificado de la respuesta
+                    {
+                        publicKey = cert.PublicKey.Key;
                     }
 
-                    publicKey = _serverCert.PublicKey.Key;
-                }
-                else // se utiliza entonces el certificado de la respuesta
-                {
-                    publicKey = cert.PublicKey.Key;
-                }
+                    XmlNode signatureNode = doc.SelectSingleNode("soapenv:Envelope/soapenv:Header/wsse:Security/ds:Signature", xmlNamespaceManager);
 
-                XmlNode signatureNode = doc.SelectSingleNode("soapenv:Envelope/soapenv:Header/wsse:Security/ds:Signature", xmlNamespaceManager);
+                    SignedXml signedXml = new SignedXml(doc);
+                    signedXml.LoadXml((XmlElement)signatureNode);
 
-                SignedXml signedXml = new SignedXml(doc);
-                signedXml.LoadXml((XmlElement)signatureNode);
+                    bool valid = signedXml.CheckSignature(publicKey);
 
-                bool valid = signedXml.CheckSignature(publicKey);
-
-                if (!valid)
-                {
-                    throw new Exception("Signature not valid");
+                    if (!valid)
+                    {
+                        throw new Exception("Signature not valid");
+                    }
                 }
 
                 // SE MODIFICA EL ATRIBUTO DESPUES DE VALIDAR LA FIRMA

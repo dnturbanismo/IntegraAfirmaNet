@@ -64,6 +64,7 @@
     <EmbeddedResource Include="Firmas\cades_attached_implicit.csig" />
     <EmbeddedResource Include="Firmas\cades_detached_explicit.csig" />
     <EmbeddedResource Include="Certificados\certificado_firma.cer" />
+    <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
