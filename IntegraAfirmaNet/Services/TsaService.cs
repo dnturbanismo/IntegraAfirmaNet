@@ -99,9 +99,9 @@ namespace IntegraAfirmaNet.Services
             }
         }
 
-        public Timestamp RenewTimeStamp(RequestSignatureType signatureType, Timestamp previousTimestamp, DocumentBaseType document)
+        public Timestamp RenewTimeStamp(Timestamp previousTimestamp, DocumentBaseType document)
         {
-            SignRequest request = BuildRequest(signatureType, document, previousTimestamp);
+            SignRequest request = BuildRequest(RequestSignatureType.XML, document, previousTimestamp);
 
             RenewTimeSoapClient tsaSoapClient = new RenewTimeSoapClient(_baseUrl + "/RenewTimeStampWS", _identity, _serverCert);
 

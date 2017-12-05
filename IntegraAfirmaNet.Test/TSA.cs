@@ -201,7 +201,7 @@ namespace IntegraAfirmaNet.Test
                 Timestamp timeStamp = new Timestamp();
                 timeStamp.Item = sello;
 
-                var newTimestamp = _tsaService.RenewTimeStamp(RequestSignatureType.XML, timeStamp, documentHash);
+                var newTimestamp = _tsaService.RenewTimeStamp(timeStamp, documentHash);
 
                 sello = newTimestamp.Item as SignatureType;
 
