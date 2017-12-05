@@ -144,7 +144,6 @@ namespace IntegraAfirmaNet.Soap.Filters
             node.AppendChild(securityNode);
 
             signature.ComputeSignature();
-            signature.CheckSignature();
             securityNode.AppendChild(envelope.ImportNode(signature.GetXml(), true));
 
             if (disposeCryptoProvider)
