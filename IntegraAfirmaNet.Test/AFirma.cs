@@ -179,7 +179,7 @@ namespace IntegraAfirmaNet.Test
 
                 VerifyResponse resultado = _afirmaService.VerifySignature(firma, SignatureFormat.XAdES, true);
 
-                Assert.AreEqual(resultado.Result.ResultMajor, ResultType.ValidSignature.Uri);
+                Assert.AreEqual(ResultType.ValidSignature.Uri, resultado.Result.ResultMajor);
 
                 TestContext.WriteLine(string.Format("{0}: {1}", DateTime.Now.ToShortTimeString(), "Firma válida"));
             }
@@ -204,7 +204,7 @@ namespace IntegraAfirmaNet.Test
 
                 VerifyResponse resultado = _afirmaService.VerifySignature(firma, SignatureFormat.CAdES, true);
 
-                Assert.AreEqual(resultado.Result.ResultMajor, ResultType.ValidSignature.Uri);
+                Assert.AreEqual(ResultType.ValidSignature.Uri, resultado.Result.ResultMajor);
 
                 TestContext.WriteLine(string.Format("{0}: {1}", DateTime.Now.ToShortTimeString(), "Firma válida"));
             }
@@ -234,7 +234,7 @@ namespace IntegraAfirmaNet.Test
 
                 VerifyResponse resultado = _afirmaService.VerifySignature(firma, SignatureFormat.CAdES, true, new DocumentBaseType[] { docHash });
 
-                Assert.AreEqual(resultado.Result.ResultMajor, ResultType.ValidSignature.Uri);
+                Assert.AreEqual(ResultType.ValidSignature.Uri, resultado.Result.ResultMajor);
 
                 TestContext.WriteLine(string.Format("{0}: {1}", DateTime.Now.ToShortTimeString(), "Firma válida"));
             }

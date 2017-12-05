@@ -130,7 +130,9 @@ namespace IntegraAfirmaNet.Test
                 Timestamp timeStamp = new Timestamp();
                 timeStamp.Item = Convert.FromBase64String(sellob64);
 
-                _tsaService.VerifyTimestamp(documentHash, timeStamp);
+                VerifyResponse resultado = _tsaService.VerifyTimestamp(documentHash, timeStamp);
+
+                Assert.AreEqual(ResultType.Success.Uri, resultado.Result.ResultMajor);
 
                 TestContext.WriteLine(string.Format("{0}: {1}", DateTime.Now.ToShortTimeString(), "Sello válido"));
             }
@@ -164,7 +166,9 @@ namespace IntegraAfirmaNet.Test
                 Timestamp timeStamp = new Timestamp();
                 timeStamp.Item = sello;
 
-                _tsaService.VerifyTimestamp(documentHash, timeStamp);
+                VerifyResponse resultado = _tsaService.VerifyTimestamp(documentHash, timeStamp);
+
+                Assert.AreEqual(ResultType.Success.Uri, resultado.Result.ResultMajor);
 
                 TestContext.WriteLine(string.Format("{0}: {1}", DateTime.Now.ToShortTimeString(), "Sello válido"));
             }

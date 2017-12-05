@@ -125,9 +125,10 @@ namespace IntegraAfirmaNet.Services
 
             VerifyResponse response = tsaSoapClient.verifyTimeStamp(request);
 
-            if (!ResultType.Success.Equals(response.Result.ResultMajor))
+            if (ResultType.RequesterError.Equals(response.Result.ResultMajor) ||
+                ResultType.ResponderError.Equals(response.Result.ResultMajor))
             {
-                throw new AfirmaResultException(response.Result.ResultMajor, response.Result.ResultMessage.Value);
+                throw new AfirmaResultException(response.Result.ResultMajor, response.Result.ResultMinor, response.Result.ResultMessage.Value);
             }
 
             return response;
