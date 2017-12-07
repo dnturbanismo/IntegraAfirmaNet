@@ -89,6 +89,11 @@ namespace IntegraAfirmaNet.Services
         public VerifyResponse VerifySignature(byte[] signature, SignatureFormat signatureFormat, bool includeDetails,
             IEnumerable<DocumentBaseType> otherInputDocuments = null)
         {
+            if (signature == null)
+            {
+                throw new ArgumentNullException("signature", "El valor no puede ser nulo.");
+            }            
+            
             object document = GetDocument(signature, signatureFormat);
 
             DocumentType doc = new DocumentType();
@@ -145,6 +150,16 @@ namespace IntegraAfirmaNet.Services
         public byte[] UpgradeSignature(byte[] signature, SignatureFormat signatureFormat, ReturnUpdatedSignatureType returnUpdateSignatureType,
             byte[] targetSignerCert = null, IEnumerable<DocumentBaseType> otherInputDocuments = null)
         {
+            if (signature == null)
+            {
+                throw new ArgumentNullException("signature", "El valor no puede ser nulo.");
+            }
+
+            if (returnUpdateSignatureType == null)
+            {
+                throw new ArgumentNullException("returnUpdateSignatureType", "El valor no puede ser nulo.");
+            } 
+            
             object document = GetDocument(signature, signatureFormat);
 
             ReturnUpdatedSignature returnUpdated = new ReturnUpdatedSignature();
@@ -242,6 +257,11 @@ namespace IntegraAfirmaNet.Services
 
         public VerifyResponse ValidateCertificate(X509Certificate2 certificate, bool includeDetails, bool returnReadableCertificateInfo)
         {
+            if (certificate == null)
+            {
+                throw new ArgumentNullException("certificate", "El valor no puede ser nulo.");
+            }             
+            
             List<XmlElement> optionalInputs = new List<XmlElement>();
             
             ReturnVerificationReport verificationReport = new ReturnVerificationReport();

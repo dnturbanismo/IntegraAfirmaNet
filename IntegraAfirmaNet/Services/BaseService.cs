@@ -56,6 +56,21 @@ namespace IntegraAfirmaNet.Services
 
         public BaseService(string url, Identity identity)
         {
+            if (url == null)
+            {
+                throw new ArgumentNullException("url", "El valor no puede ser nulo.");
+            }
+
+            if (url == "")
+            {
+                throw new ArgumentException("url", "El valor no puede ser una cadena vacía.");
+            }
+
+            if (identity == null)
+            {
+                throw new ArgumentNullException("identity", "El valor no puede ser nulo.");
+            }
+            
             _baseUrl = url;
             _identity = identity;            
         }

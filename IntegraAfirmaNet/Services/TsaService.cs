@@ -83,6 +83,16 @@ namespace IntegraAfirmaNet.Services
 
         public Timestamp CreateTimeStamp(RequestSignatureType signatureType, DocumentBaseType document)
         {
+            if (signatureType == null)
+            {
+                throw new ArgumentNullException("signatureType", "El valor no puede ser nulo.");
+            }
+
+            if (document == null)
+            {
+                throw new ArgumentNullException("document", "El valor no puede ser nulo.");
+            } 
+            
             SignRequest request = BuildRequest(signatureType, document, null);
 
             CreateTimeSoapClient tsaSoapClient = new CreateTimeSoapClient(_baseUrl + "/CreateTimeStampWS", _identity, _serverCert);
@@ -101,6 +111,16 @@ namespace IntegraAfirmaNet.Services
 
         public Timestamp RenewTimeStamp(Timestamp previousTimestamp, DocumentBaseType document)
         {
+            if (previousTimestamp == null)
+            {
+                throw new ArgumentNullException("previousTimestamp", "El valor no puede ser nulo.");
+            } 
+
+            if (document == null)
+            {
+                throw new ArgumentNullException("document", "El valor no puede ser nulo.");
+            } 
+            
             SignRequest request = BuildRequest(RequestSignatureType.XML, document, previousTimestamp);
 
             RenewTimeSoapClient tsaSoapClient = new RenewTimeSoapClient(_baseUrl + "/RenewTimeStampWS", _identity, _serverCert);
@@ -119,6 +139,16 @@ namespace IntegraAfirmaNet.Services
 
         public VerifyResponse VerifyTimestamp(DocumentBaseType document, Timestamp timeStamp, bool returnProcessingDetails = false)
         {
+            if (document == null)
+            {
+                throw new ArgumentNullException("document", "El valor no puede ser nulo.");
+            }
+
+            if (timeStamp == null)
+            {
+                throw new ArgumentNullException("timeStamp", "El valor no puede ser nulo.");
+            }
+            
             VerifyRequest request = BuildVerifyRequest(document, timeStamp, returnProcessingDetails);
 
             VerifyTimeSoapClient tsaSoapClient = new VerifyTimeSoapClient(_baseUrl + "/VerifyTimeStampWS", _identity, _serverCert);
