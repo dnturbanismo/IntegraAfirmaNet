@@ -82,8 +82,8 @@ namespace IntegraAfirmaNet.Services
 
         public AfirmaService(string url, Identity identity, X509Certificate2 serverCert) :
             base(url, identity, serverCert)
-        {
-            _serverCert = serverCert;
+        {            
+
         }
 
         public VerifyResponse VerifySignature(byte[] signature, SignatureFormat signatureFormat, bool includeDetails,
