@@ -16,10 +16,10 @@ namespace IntegraAfirmaNet.Soap.Clients
     [System.Web.Services.WebServiceBindingAttribute(Name = "CreateTimeStampSoapBinding", Namespace = "http://www.map.es/TSA/V1/TSA.wsdl")]
     public partial class CreateTimeSoapClient : BaseSoapClient
     {
-        public CreateTimeSoapClient(string url, Identity identity, X509Certificate2 serverCert) :
-            base(url, identity, serverCert)
+        public CreateTimeSoapClient(Identity identity, X509Certificate2 serverCert) :
+            base(identity, serverCert)
         {
-
+            base.Url = global::IntegraAfirmaNet.Properties.Settings.Default.CreateTimeStampBinding;
         }
 
         public new string Url
@@ -48,10 +48,10 @@ namespace IntegraAfirmaNet.Soap.Clients
     [System.Web.Services.WebServiceBindingAttribute(Name = "RenewTimeStampSoapBinding", Namespace = "http://www.map.es/TSA/V1/TSA.wsdl")]
     public partial class RenewTimeSoapClient : BaseSoapClient
     {
-        public RenewTimeSoapClient(string url, Identity identity, X509Certificate2 serverCert) :
-            base(url, identity, serverCert)
+        public RenewTimeSoapClient(Identity identity, X509Certificate2 serverCert) :
+            base(identity, serverCert)
         {
-
+            base.Url = global::IntegraAfirmaNet.Properties.Settings.Default.RenewTimeStampBinding;
         }
 
         public new string Url
@@ -80,10 +80,10 @@ namespace IntegraAfirmaNet.Soap.Clients
     [System.Web.Services.WebServiceBindingAttribute(Name = "VerifyTimeStampSoapBinding", Namespace = "http://www.map.es/TSA/V1/TSA.wsdl")]
     public partial class VerifyTimeSoapClient : BaseSoapClient
     {
-        public VerifyTimeSoapClient(string url, Identity identity, X509Certificate2 serverCert) :
-            base(url, identity, serverCert)
+        public VerifyTimeSoapClient(Identity identity, X509Certificate2 serverCert) :
+            base(identity, serverCert)
         {
-
+            base.Url = global::IntegraAfirmaNet.Properties.Settings.Default.VerifyTimeStampBinding;
         }
 
         public new string Url

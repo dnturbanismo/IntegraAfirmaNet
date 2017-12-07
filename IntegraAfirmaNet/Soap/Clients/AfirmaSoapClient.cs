@@ -22,10 +22,10 @@ namespace IntegraAfirmaNet.SignatureFramework
     [System.Web.Services.WebServiceBindingAttribute(Name = "DSSAfirmaVerifySoapBinding", Namespace = "urn:oasis:names:tc:dss:1.0:core:schema")]
     public partial class DSSAfirmaVerifyService : BaseSoapClient
     {
-        public DSSAfirmaVerifyService(string url, Identity identity, X509Certificate2 serverCert) :
-            base(url, identity, serverCert)
+        public DSSAfirmaVerifyService(Identity identity, X509Certificate2 serverCert) :
+            base(identity, serverCert)
         {
-
+            base.Url = global::IntegraAfirmaNet.Properties.Settings.Default.DSSAfirmaVerifyBinding;
         }
 
         public new string Url
@@ -54,10 +54,10 @@ namespace IntegraAfirmaNet.SignatureFramework
     [System.Web.Services.WebServiceBindingAttribute(Name = "DSSAfirmaVerifyCertificateSoapBinding", Namespace = "urn:oasis:names:tc:dss:1.0:core:schema")]
     public partial class DSSAfirmaVerifyCertificateService : BaseSoapClient
     {
-        public DSSAfirmaVerifyCertificateService(string url, Identity identity, X509Certificate2 serverCert) :
-            base(url, identity, serverCert)
+        public DSSAfirmaVerifyCertificateService(Identity identity, X509Certificate2 serverCert) :
+            base(identity, serverCert)
         {
-
+            base.Url = global::IntegraAfirmaNet.Properties.Settings.Default.DSSAfirmaVerifyCertificateBinding;
         }
 
         public new string Url
@@ -77,39 +77,6 @@ namespace IntegraAfirmaNet.SignatureFramework
         public string verify(string dssXML)
         {
             object[] results = this.Invoke("verify", new object[] { dssXML });
-
-            return ((string)(results[0]));
-        }
-    }
-
-    [System.ComponentModel.DesignerCategoryAttribute("code")]
-    [System.Web.Services.WebServiceBindingAttribute(Name = "ValidarCertificadoSoapBinding", Namespace = "http://afirmaws/services/ValidarCertificado")]
-    public partial class ValidarCertificadoService : BaseSoapClient
-    {
-        /// <remarks/>
-        public ValidarCertificadoService(string url, Identity identity, X509Certificate2 serverCert) :
-            base(url, identity, serverCert)
-        {
-
-        }
-
-        public new string Url
-        {
-            get
-            {
-                return base.Url;
-            }
-            set
-            {
-                base.Url = value;
-            }
-        }
-
-        [System.Web.Services.Protocols.SoapRpcMethodAttribute("", RequestNamespace = "http://afirmaws/services/ValidarCertificado", ResponseNamespace = "http://afirmaws/services/ValidarCertificado", Use = System.Web.Services.Description.SoapBindingUse.Literal)]
-        [return: System.Xml.Serialization.XmlElementAttribute("ValidarCertificadoReturn")]
-        public string ValidarCertificado(string peticion)
-        {
-            object[] results = this.Invoke("ValidarCertificado", new object[] { peticion });
 
             return ((string)(results[0]));
         }

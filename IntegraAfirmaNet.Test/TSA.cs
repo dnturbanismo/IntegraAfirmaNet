@@ -39,7 +39,7 @@ namespace IntegraAfirmaNet.Test
 
             Identity identity = new Identity(new X509Certificate2(_certPath, _password), _appId);
 
-            _tsaService = new TsaService("https://des-tsafirma.redsara.es/tsamap", identity, null);
+            _tsaService = new TsaService(identity);
         }
 
         [TestMethod]

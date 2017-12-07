@@ -39,8 +39,10 @@ namespace IntegraAfirmaNet.Test
 
             Identity identity = new Identity(new X509Certificate2(_certPath, _password), _appId);
 
-            _afirmaService = new AfirmaService("https://des-afirma.redsara.es/afirmaws/services", identity,
-                new X509Certificate2(ObtenerRecurso("IntegraAfirmaNet.Test.Certificados.SGAD_SE.cer")));
+//            _afirmaService = new AfirmaService(identity,
+//                new X509Certificate2(ObtenerRecurso("IntegraAfirmaNet.Test.Certificados.SGAD_SE.cer")));
+
+            _afirmaService = new AfirmaService(identity);
         }
 
         [TestMethod]

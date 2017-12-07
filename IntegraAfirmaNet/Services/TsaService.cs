@@ -14,13 +14,13 @@ namespace IntegraAfirmaNet.Services
 {
     public class TsaService : BaseService
     {
-        public TsaService(string url, Identity identity)
-            : base(url, identity)
+        public TsaService(Identity identity)
+            : base(identity)
         {
         }
 
-        public TsaService(string url, Identity identity, X509Certificate2 serverCert)
-            : base(url, identity, serverCert)
+        public TsaService(Identity identity, X509Certificate2 serverCert)
+            : base(identity, serverCert)
         {
 
         }
@@ -95,7 +95,7 @@ namespace IntegraAfirmaNet.Services
             
             SignRequest request = BuildRequest(signatureType, document, null);
 
-            CreateTimeSoapClient tsaSoapClient = new CreateTimeSoapClient(_baseUrl + "/CreateTimeStampWS", _identity, _serverCert);
+            CreateTimeSoapClient tsaSoapClient = new CreateTimeSoapClient(_identity, _serverCert);
 
             SignResponse response = tsaSoapClient.createTimeStamp(request);
 
@@ -123,7 +123,7 @@ namespace IntegraAfirmaNet.Services
             
             SignRequest request = BuildRequest(RequestSignatureType.XML, document, previousTimestamp);
 
-            RenewTimeSoapClient tsaSoapClient = new RenewTimeSoapClient(_baseUrl + "/RenewTimeStampWS", _identity, _serverCert);
+            RenewTimeSoapClient tsaSoapClient = new RenewTimeSoapClient(_identity, _serverCert);
 
             SignResponse response = tsaSoapClient.renewTimeStamp(request);
 
@@ -151,7 +151,7 @@ namespace IntegraAfirmaNet.Services
             
             VerifyRequest request = BuildVerifyRequest(document, timeStamp, returnProcessingDetails);
 
-            VerifyTimeSoapClient tsaSoapClient = new VerifyTimeSoapClient(_baseUrl + "/VerifyTimeStampWS", _identity, _serverCert);
+            VerifyTimeSoapClient tsaSoapClient = new VerifyTimeSoapClient(_identity, _serverCert);
 
             VerifyResponse response = tsaSoapClient.verifyTimeStamp(request);
 

@@ -13,7 +13,6 @@ namespace IntegraAfirmaNet.Services
 {
     public abstract class BaseService
     {
-        protected string _baseUrl = null;
         protected Identity _identity = null;
         protected X509Certificate2 _serverCert = null;
 
@@ -54,30 +53,24 @@ namespace IntegraAfirmaNet.Services
             }
         }
 
-        public BaseService(string url, Identity identity)
+        public BaseService(Identity identity)
         {
-            if (url == null)
-            {
-                throw new ArgumentNullException("url", "El valor no puede ser nulo.");
-            }
-
-            if (url == "")
-            {
-                throw new ArgumentException("url", "El valor no puede ser una cadena vacía.");
-            }
-
             if (identity == null)
             {
                 throw new ArgumentNullException("identity", "El valor no puede ser nulo.");
             }
             
-            _baseUrl = url;
             _identity = identity;            
         }
 
-        public BaseService(string url, Identity identity, X509Certificate2 serverCert) :
-            this(url, identity)
+        public BaseService(Identity identity, X509Certificate2 serverCert) :
+            this(identity)
         {
+            if (serverCert == null)
+            {
+                throw new ArgumentNullException("serverCert", "El valor no puede ser nulo.");
+            }
+            
             _serverCert = serverCert;
         }
 

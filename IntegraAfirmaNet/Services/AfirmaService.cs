@@ -24,65 +24,15 @@ namespace IntegraAfirmaNet.Services
     public class AfirmaService : BaseService
     {
 
-        private VerifyRequest BuildRequest(IEnumerable<object> inputDocuments, SignatureObject signatureObject,
-            IEnumerable<XmlElement> optionalInputs)
+        public AfirmaService(Identity identity)
+            : base(identity)
         {
-            VerifyRequest vr = new VerifyRequest();
 
-            ClaimedIdentity identity = new ClaimedIdentity();
-            identity.Name = new NameIdentifierType() { Value = _identity.ApplicationId };
-
-            List<XmlElement> optionalInputsList = new List<XmlElement>();
-            optionalInputsList.Add(GetXmlElement(identity));
-
-            foreach (var optionalInput in optionalInputs)
-            {
-                optionalInputsList.Add(optionalInput);
-            }
-
-            vr.OptionalInputs = new AnyType();
-            vr.OptionalInputs.Any = optionalInputsList.ToArray();
-
-            if (inputDocuments != null)
-            {
-                vr.InputDocuments = new InputDocuments();
-                vr.InputDocuments.Items = inputDocuments.ToArray();
-            }
-            vr.SignatureObject = signatureObject;
-
-            return vr;
         }
 
-        private object GetDocument(byte[] signature, SignatureFormat signatureFormat)
+        public AfirmaService(Identity identity, X509Certificate2 serverCert) :
+            base(identity, serverCert)
         {
-            if (signatureFormat == SignatureFormat.XAdES)
-            {
-                return signature;
-            }
-
-            Base64Data b64Data = new Base64Data();
-            if (signatureFormat == SignatureFormat.PAdES)
-            {
-                b64Data.MimeType = "application/pdf";
-            }
-            else
-            {
-                b64Data.MimeType = "application/octet-stream";
-            }
-
-            b64Data.Value = signature;
-
-            return b64Data;
-        }
-
-        public AfirmaService(string url, Identity identity)
-            : base(url, identity)
-        {
-        }
-
-        public AfirmaService(string url, Identity identity, X509Certificate2 serverCert) :
-            base(url, identity, serverCert)
-        {            
 
         }
 
@@ -132,7 +82,7 @@ namespace IntegraAfirmaNet.Services
 
             VerifyRequest request = BuildRequest(documents, signatureObject, new XmlElement[] { GetXmlElement(igp), GetXmlElement(verificationReport) });
 
-            DSSAfirmaVerifyService ds = new DSSAfirmaVerifyService(_baseUrl + "/DSSAfirmaVerify", _identity, _serverCert);
+            DSSAfirmaVerifyService ds = new DSSAfirmaVerifyService(_identity, _serverCert);
 
             string result = ds.verify(GetXmlElement(request).OuterXml);
 
@@ -202,7 +152,7 @@ namespace IntegraAfirmaNet.Services
 
             VerifyRequest request = BuildRequest(documents, signatureObject, optionalInputs);
 
-            DSSAfirmaVerifyService ds = new DSSAfirmaVerifyService(_baseUrl + "/DSSAfirmaVerify", _identity, _serverCert);
+            DSSAfirmaVerifyService ds = new DSSAfirmaVerifyService(_identity, _serverCert);
 
             string result = ds.verify(GetXmlElement(request).OuterXml);
 
@@ -216,7 +166,6 @@ namespace IntegraAfirmaNet.Services
                 if (updatedSignatureType.SignatureObject.Item.GetType() == typeof(SignaturePtr))
                 {
                     SignaturePtr signaturePtr = updatedSignatureType.SignatureObject.Item as SignaturePtr;
-
                     DocumentWithSignature docWithSignature = null;
                     IEnumerable<XmlElement> documentWithSignatureXmlElements = response.OptionalOutputs.Any.Where(e => e.LocalName == "DocumentWithSignature");
                     foreach (var item in documentWithSignatureXmlElements)
@@ -225,18 +174,11 @@ namespace IntegraAfirmaNet.Services
 
                         if (docWithSignature.Document.ID == signaturePtr.WhichDocument)
                         {
-                            break;
+                            return docWithSignature.Document.Item as byte[];
                         }
                     }
 
-                    if (docWithSignature == null)
-                    {
-                        throw new Exception("No se ha encontrado el documento de firma");
-                    }
-                    else
-                    {
-                        return docWithSignature.Document.Item as byte[];
-                    }
+                    throw new Exception("No se ha encontrado el documento de firma");
                 }
                 else if (updatedSignatureType.SignatureObject.Item.GetType() == typeof(Base64Signature))
                 {
@@ -293,7 +235,7 @@ namespace IntegraAfirmaNet.Services
 
             VerifyRequest request = BuildRequest(null, signatureObject, optionalInputs.ToArray());
 
-            DSSAfirmaVerifyCertificateService ds = new DSSAfirmaVerifyCertificateService(_baseUrl + "/DSSAfirmaVerifyCertificate", _identity, _serverCert);
+            DSSAfirmaVerifyCertificateService ds = new DSSAfirmaVerifyCertificateService(_identity, _serverCert);
 
             string result = ds.verify(GetXmlElement(request).OuterXml);
 
@@ -306,5 +248,57 @@ namespace IntegraAfirmaNet.Services
 
             return response;
         }
+
+        private VerifyRequest BuildRequest(IEnumerable<object> inputDocuments, SignatureObject signatureObject,
+            IEnumerable<XmlElement> optionalInputs)
+        {
+            VerifyRequest vr = new VerifyRequest();
+
+            ClaimedIdentity identity = new ClaimedIdentity();
+            identity.Name = new NameIdentifierType() { Value = _identity.ApplicationId };
+
+            List<XmlElement> optionalInputsList = new List<XmlElement>();
+            optionalInputsList.Add(GetXmlElement(identity));
+
+            foreach (var optionalInput in optionalInputs)
+            {
+                optionalInputsList.Add(optionalInput);
+            }
+
+            vr.OptionalInputs = new AnyType();
+            vr.OptionalInputs.Any = optionalInputsList.ToArray();
+
+            if (inputDocuments != null)
+            {
+                vr.InputDocuments = new InputDocuments();
+                vr.InputDocuments.Items = inputDocuments.ToArray();
+            }
+            vr.SignatureObject = signatureObject;
+
+            return vr;
+        }
+
+        private object GetDocument(byte[] signature, SignatureFormat signatureFormat)
+        {
+            if (signatureFormat == SignatureFormat.XAdES)
+            {
+                return signature;
+            }
+
+            Base64Data b64Data = new Base64Data();
+            if (signatureFormat == SignatureFormat.PAdES)
+            {
+                b64Data.MimeType = "application/pdf";
+            }
+            else
+            {
+                b64Data.MimeType = "application/octet-stream";
+            }
+
+            b64Data.Value = signature;
+
+            return b64Data;
+        }
+
     }
 }

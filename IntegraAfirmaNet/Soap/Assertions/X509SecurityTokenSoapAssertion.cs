@@ -25,13 +25,13 @@ namespace IntegraAfirmaNet.Soap.Assertions
         {
             Tools.ExternalX509TokenProvider tokenProvider = new Tools.ExternalX509TokenProvider(keystorePath, keystorePassword);
             _token = tokenProvider.GetToken();
-            ReadConfiguration();
+            _signatureMethod = global::IntegraAfirmaNet.Properties.Settings.Default.SignatureMethod;
         }
 
         public X509SecurityTokenSoapAssertion(X509SecurityToken Token)
         {
             _token = Token;
-            ReadConfiguration();
+            _signatureMethod = global::IntegraAfirmaNet.Properties.Settings.Default.SignatureMethod;
         }
 
         /// <summary>
@@ -70,16 +70,6 @@ namespace IntegraAfirmaNet.Soap.Assertions
         public override SoapFilter CreateServiceOutputFilter(FilterCreationContext context)
         {
             return null;
-        }
-
-        private void ReadConfiguration()
-        {
-            _signatureMethod = ConfigurationManager.AppSettings["IntegraAfirmaNet_SignatureMethod"];
-
-            if (string.IsNullOrEmpty(_signatureMethod))
-            {
-                _signatureMethod = XmlSignatureConstants.XmlDsigRSAwithSHA256Url;
-            }
         }
     }
 }

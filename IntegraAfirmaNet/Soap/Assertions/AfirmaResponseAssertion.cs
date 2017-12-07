@@ -19,7 +19,7 @@ namespace IntegraAfirmaNet.Soap.Assertions
         public AfirmaResponseAssertion(X509Certificate2 serverCert)
         {
             _serverCert = serverCert;
-            ReadConfiguration();
+            _checkResponseSignature = global::IntegraAfirmaNet.Properties.Settings.Default.CheckResponseSignature;
         }
 
         public override SoapFilter CreateClientInputFilter(FilterCreationContext context)
@@ -40,20 +40,6 @@ namespace IntegraAfirmaNet.Soap.Assertions
         public override SoapFilter CreateServiceOutputFilter(FilterCreationContext context)
         {
             return null;
-        }
-
-        private void ReadConfiguration()
-        {
-            string appSetting = ConfigurationManager.AppSettings["IntegraAfirmaNet_CheckResponseSignature"];
-
-            if (!string.IsNullOrEmpty(appSetting))
-            {
-                _checkResponseSignature = Convert.ToBoolean(appSetting);
-            }
-            else
-            {
-                _checkResponseSignature = true;
-            }
         }
     }
 }
