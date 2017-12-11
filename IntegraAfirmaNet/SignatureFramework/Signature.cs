@@ -6,6 +6,7 @@ using System.Security.Cryptography.Xml;
 using System.Xml.XPath;
 using System.IO;
 using System.Collections.Generic;
+using System.Security.Cryptography.X509Certificates;
 
 
 namespace IntegraAfirmaNet.SignatureFramework
@@ -140,7 +141,7 @@ namespace IntegraAfirmaNet.SignatureFramework
                 doc = envdoc;
             else
             {
-                XmlElement element = GetIdElement(envdoc, r.Uri.Remove(0, 1));
+                XmlElement element = GetIdElement(envdoc, r.Uri != null ? r.Uri.Remove(0, 1) : null);
                 doc.LoadXml(element.OuterXml);
 
                 if (r.TransformChain.Count > 0)
@@ -348,11 +349,11 @@ namespace IntegraAfirmaNet.SignatureFramework
                 SignatureDescription sd = GetSignatureDescription(signature.SignedInfo.SignatureMethod);
 
                 byte[] hash = Hash(sd.DigestAlgorithm);
-                AsymmetricSignatureDeformatter verifier = (AsymmetricSignatureDeformatter)CryptoConfig.CreateFromName(sd.DeformatterAlgorithm);
+                AsymmetricSignatureDeformatter verifier = sd.CreateDeformatter(key); //(AsymmetricSignatureDeformatter)CryptoConfig.CreateFromName(sd.DeformatterAlgorithm);
                 if (verifier != null)
                 {
-                    verifier.SetHashAlgorithm(sd.DigestAlgorithm);
-                    verifier.SetKey(key);
+                    //verifier.SetHashAlgorithm(sd.DigestAlgorithm);
+                    //verifier.SetKey(key);
                     result = verifier.VerifySignature(hash, signature.SignatureValue);
                 }
                 else
@@ -406,19 +407,19 @@ namespace IntegraAfirmaNet.SignatureFramework
                 if (key is DSA)
                     signer = new DSASignatureFormatter(key);
                 else if (key is RSA)
-                    signer = new RSAPKCS1SignatureFormatter(key);
+                    signer = sd.CreateFormatter(key); //new RSAPKCS1SignatureFormatter(key);
 
                 if (signer != null)
                 {
-                    if (sd.DigestAlgorithm == typeof(SHA1CryptoServiceProvider).FullName)
+                    if (sd.DigestAlgorithm == typeof(SHA1CryptoServiceProvider).FullName || sd.DigestAlgorithm == typeof(SHA1Cng).FullName)
                     {
                         signer.SetHashAlgorithm("SHA1");
                     }
-                    else if (sd.DigestAlgorithm == typeof(SHA256Managed).FullName)
+                    else if (sd.DigestAlgorithm == typeof(SHA256Managed).FullName || sd.DigestAlgorithm == typeof(SHA256Cng).FullName)
                     {
                         signer.SetHashAlgorithm("SHA256");
                     }
-                    else if (sd.DigestAlgorithm == typeof(SHA512Managed).FullName)
+                    else if (sd.DigestAlgorithm == typeof(SHA512Managed).FullName || sd.DigestAlgorithm == typeof(SHA512Cng).FullName)
                     {
                         signer.SetHashAlgorithm("SHA512");
                     }
@@ -460,6 +461,12 @@ namespace IntegraAfirmaNet.SignatureFramework
                         key = DSA.Create();
                     else if (kic is RSAKeyValue)
                         key = RSA.Create();
+                    else if (kic is KeyInfoX509Data)
+                    {
+                        KeyInfoX509Data keyInfoData = kic as KeyInfoX509Data;
+
+                        return (keyInfoData.Certificates[0] as X509Certificate2).PublicKey.Key;
+                    }
 
                     if (key != null)
                     {

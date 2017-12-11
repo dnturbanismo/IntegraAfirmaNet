@@ -5,6 +5,7 @@ using Microsoft.Web.Services3.Design;
 using Microsoft.Web.Services3.Security.Tokens;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,18 +14,24 @@ namespace IntegraAfirmaNet.Soap.Assertions
 {
     public class X509SecurityTokenSoapAssertion : PolicyAssertion
     {
-        private X509SecurityToken token;
-        public X509SecurityToken Token { get { return token; } }
+        private X509SecurityToken _token;
+        private string _signatureMethod;
+
+        public X509SecurityToken Token { get { return _token; } }
+
+        public string SignatureMethod { get { return _signatureMethod;  } }
 
         public X509SecurityTokenSoapAssertion(string keystorePath, string keystorePassword)
         {
             Tools.ExternalX509TokenProvider tokenProvider = new Tools.ExternalX509TokenProvider(keystorePath, keystorePassword);
-            token = tokenProvider.GetToken();
+            _token = tokenProvider.GetToken();
+            _signatureMethod = global::IntegraAfirmaNet.Properties.Settings.Default.SignatureMethod;
         }
 
         public X509SecurityTokenSoapAssertion(X509SecurityToken Token)
         {
-            token = Token;
+            _token = Token;
+            _signatureMethod = global::IntegraAfirmaNet.Properties.Settings.Default.SignatureMethod;
         }
 
         /// <summary>

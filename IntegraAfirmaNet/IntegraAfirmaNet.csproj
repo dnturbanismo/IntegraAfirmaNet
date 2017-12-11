@@ -35,6 +35,7 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Security" />
     <Reference Include="System.Web.Services" />
@@ -47,15 +48,26 @@
   <ItemGroup>
     <Compile Include="Exceptions\AfirmaResultException.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
+    <Compile Include="Schemas\Afirma-dss.cs" />
     <Compile Include="Schemas\Oasis-dss.cs" />
     <Compile Include="Authentication\Identity.cs" />
-    <Compile Include="Schemas\ValidarCertificado.cs" />
+    <Compile Include="Schemas\RequestSignatureType.cs" />
+    <Compile Include="Schemas\ResultType.cs" />
+    <Compile Include="Schemas\VerificationReport.cs" />
     <Compile Include="Services\AfirmaService.cs" />
+    <Compile Include="Services\BaseService.cs" />
+    <Compile Include="Services\TsaService.cs" />
     <Compile Include="Soap\Assertions\AfirmaResponseAssertion.cs" />
     <Compile Include="Soap\Assertions\UsernameTokenSoapAssertion.cs" />
     <Compile Include="Soap\Assertions\X509SecurityTokenSoapAssertion.cs" />
-    <Compile Include="Soap\Clients\AfirmaBaseSoapClient.cs" />
+    <Compile Include="Soap\Clients\BaseSoapClient.cs" />
     <Compile Include="Soap\Clients\AfirmaSoapClient.cs" />
+    <Compile Include="Soap\Clients\TsaSoapClient.cs" />
     <Compile Include="Soap\Filters\InputSoapFilter.cs" />
     <Compile Include="SignatureFramework\RSAPKCS1SHA256SignatureDescription.cs" />
     <Compile Include="SignatureFramework\RSAPKCS1SHA512SignatureDescription.cs" />
@@ -67,19 +79,14 @@
     <Compile Include="SignatureFramework\XmlSignature.cs" />
     <Compile Include="Soap\Filters\SignedSoapFilter.cs" />
     <Compile Include="Soap\Filters\UsernameOutputFilter.cs" />
-    <Compile Include="TSA\AfirmaPolicyAssertion.cs" />
-    <Compile Include="TSA\CreateTimeStampWS.cs" />
-    <Compile Include="TSA\Reference.cs" />
-    <Compile Include="TSA\Signature.cs" />
-    <Compile Include="TSA\SignedInfo.cs" />
-    <Compile Include="TSA\SignedXmlSignature.cs" />
-    <Compile Include="TSA\Tools.cs" />
-    <Compile Include="TSA\Transforms.cs" />
-    <Compile Include="TSA\XmlCanonicalizer.cs" />
-    <Compile Include="TSA\XmlSignature.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="app.config" />
     <None Include="packages.config" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
     <None Include="Schemas\afirma-dss-1.0-profiles-XSS-schema.xsd">
       <SubType>Designer</SubType>
     </None>

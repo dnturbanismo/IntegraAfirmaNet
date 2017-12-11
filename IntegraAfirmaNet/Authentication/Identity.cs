@@ -58,6 +58,36 @@ namespace IntegraAfirmaNet.Authentication
 
         public Identity(string user, string password, PasswordOption mode, string applicationId)
         {
+            if (user == null)
+            {
+                throw new ArgumentNullException("user", "El valor no puede ser nulo.");
+            }
+
+            if (user == "")
+            {
+                throw new ArgumentException("user", "El valor no puede ser una cadena vacía.");
+            }
+
+            if (password == null)
+            {
+                throw new ArgumentNullException("password", "El valor no puede ser nulo.");
+            }
+
+            if (password == "")
+            {
+                throw new ArgumentException("password", "El valor no puede ser una cadena vacía.");
+            }
+
+            if (applicationId == null)
+            {
+                throw new ArgumentNullException("applicationId", "El valor no puede ser nulo.");
+            }
+
+            if (applicationId == "")
+            {
+                throw new ArgumentException("applicationId", "El valor no puede ser una cadena vacía.");
+            } 
+            
             _user = user;
             _password = password;
             _passwordMode = mode;
@@ -67,6 +97,21 @@ namespace IntegraAfirmaNet.Authentication
 
         public Identity(X509Certificate2 certificate, string applicationId)
         {
+            if (applicationId == null)
+            {
+                throw new ArgumentNullException("applicationId", "El valor no puede ser nulo.");
+            }
+
+            if (applicationId == "")
+            {
+                throw new ArgumentException("applicationId", "El valor no puede ser una cadena vacía.");
+            }
+
+            if (certificate == null)
+            {
+                throw new ArgumentNullException("certificate", "El valor no puede ser nulo.");
+            }
+            
             _certificate = certificate;
             _authenticationType = AuthenticationType.BinarySecurityToken;
             _applicationId = applicationId;

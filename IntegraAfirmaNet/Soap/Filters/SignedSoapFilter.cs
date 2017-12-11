@@ -1,4 +1,5 @@
-﻿using IntegraAfirmaNet.Soap.Assertions;
+﻿using IntegraAfirmaNet.SignatureFramework;
+using IntegraAfirmaNet.Soap.Assertions;
 using Microsoft.Web.Services3;
 using Microsoft.Web.Services3.Security;
 using Microsoft.Web.Services3.Security.Tokens;
@@ -16,13 +17,11 @@ namespace IntegraAfirmaNet.Soap.Filters
 {
     internal class SignedSoapFilter : SoapFilter
     {
-        private X509SecurityTokenSoapAssertion parentAssertion;
-        private X509SecurityToken token;
+        private X509SecurityTokenSoapAssertion _parentAssertion;
 
         public SignedSoapFilter(X509SecurityTokenSoapAssertion parent)
         {
-            parentAssertion = parent;
-            token = parentAssertion.Token;
+            _parentAssertion = parent;
         }
 
         public override SoapFilterResult ProcessMessage(SoapEnvelope envelope)
@@ -50,14 +49,15 @@ namespace IntegraAfirmaNet.Soap.Filters
             IdAttTs.Value = "Timestamp-" + Guid.NewGuid().ToString();
 
             XmlNode created = envelope.CreateNode(XmlNodeType.Element, "wsu:Created", "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd");
-            created.InnerText = DateTime.Now.ToString("o");
+            created.InnerText = DateTime.Now.ToUniversalTime().ToString("o");
 
-            DateTime expiration = DateTime.Now.AddMinutes(3);
+            DateTime expiration = DateTime.Now.AddMinutes(5);
             XmlNode expires = envelope.CreateNode(XmlNodeType.Element, "wsu:Expires", "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd");
-            expires.InnerText = expiration.ToString("o");
+            expires.InnerText = expiration.ToUniversalTime().ToString("o");
+
             timestampElement.Attributes.Append(IdAttTs);
-            timestampElement.AppendChild(expires);
             timestampElement.AppendChild(created);
+            timestampElement.AppendChild(expires);
 
             XmlNode binarySecurityTokenNode = envelope.CreateNode(
                 XmlNodeType.Element,
@@ -74,10 +74,10 @@ namespace IntegraAfirmaNet.Soap.Filters
                 "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509v3");
 
             XmlAttribute IdAtt = envelope.CreateAttribute("wsu", "Id", "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd");
-            IdAtt.Value = parentAssertion.Token.Id;
+            IdAtt.Value = _parentAssertion.Token.Id;
             binarySecurityTokenElement.Attributes.Append(IdAtt);
 
-            byte[] publicCert = parentAssertion.Token.Certificate.GetRawCertData();
+            byte[] publicCert = _parentAssertion.Token.Certificate.GetRawCertData();
             binarySecurityTokenElement.InnerXml = Convert.ToBase64String(publicCert, Base64FormattingOptions.None);
 
             SignatureFramework.SignedXml signature = new SignatureFramework.SignedXml(envelope);
@@ -85,14 +85,14 @@ namespace IntegraAfirmaNet.Soap.Filters
 
             KeyInfo ki = new KeyInfo();
             ki.Id = "KeyInfo-" + Guid.NewGuid().ToString();
-            SecurityTokenReference sectokenReference = new SecurityTokenReference(token, SecurityTokenReference.SerializationOptions.Reference);
+            SecurityTokenReference sectokenReference = new SecurityTokenReference(_parentAssertion.Token, SecurityTokenReference.SerializationOptions.Reference);
             ki.AddClause(sectokenReference);
 
             signature.KeyInfo = ki;
 
             SignatureFramework.SignedInfo si = new SignatureFramework.SignedInfo();
 
-            si.SignatureMethod = SignatureFramework.XmlSignatureConstants.XmlDsigSHA256Url;
+            si.SignatureMethod = _parentAssertion.SignatureMethod;
 
             si.CanonicalizationMethod = SignatureFramework.XmlSignatureConstants.XmlDsigExcC14NTransformUrl;
 
@@ -113,7 +113,7 @@ namespace IntegraAfirmaNet.Soap.Filters
 
             bool disposeCryptoProvider = false;
 
-            var key = (RSACryptoServiceProvider)parentAssertion.Token.Certificate.PrivateKey;
+            var key = (RSACryptoServiceProvider)_parentAssertion.Token.Certificate.PrivateKey;
 
             if (key.CspKeyContainerInfo.ProviderName == "Microsoft Strong Cryptographic Provider" ||
                 key.CspKeyContainerInfo.ProviderName == "Microsoft Enhanced Cryptographic Provider v1.0" ||
@@ -134,7 +134,7 @@ namespace IntegraAfirmaNet.Soap.Filters
             }
             else
             {
-                signature.SigningKey = parentAssertion.Token.Certificate.PrivateKey;
+                signature.SigningKey = _parentAssertion.Token.Certificate.PrivateKey;
             }
 
             securityNode.AppendChild(binarySecurityTokenNode);
@@ -144,7 +144,6 @@ namespace IntegraAfirmaNet.Soap.Filters
             node.AppendChild(securityNode);
 
             signature.ComputeSignature();
-            signature.CheckSignature();
             securityNode.AppendChild(envelope.ImportNode(signature.GetXml(), true));
 
             if (disposeCryptoProvider)

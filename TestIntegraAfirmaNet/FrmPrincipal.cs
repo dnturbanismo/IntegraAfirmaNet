@@ -147,9 +147,7 @@ namespace DSSAfirmaVerifySampleTest
                 Identity identity = new Identity(cert, txtIdentificador.Text);
 
                 // Certificado que firma las respuestas del servidor
-                X509Certificate2 serverCert = null; // new X509Certificate2(File.ReadAllBytes("SGAD_PRO.cer"));
-
-                AfirmaService afirmaService = new AfirmaService("https://afirma.redsara.es/afirmaws/services", identity, serverCert);
+                AfirmaService afirmaService = new AfirmaService(identity);
 
                 byte[] resultado = afirmaService.UpgradeSignature(contenidoFirma, formatoFirma, ReturnUpdatedSignatureType.GetReturnUpdatedSignatureType(cmbTipo.Text));
 

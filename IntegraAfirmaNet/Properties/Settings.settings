@@ -1,0 +1,27 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="IntegraAfirmaNet.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="CreateTimeStampBinding" Type="(Web Service URL)" Scope="Application">
+      <Value Profile="(Default)">https://tsafirma.redsara.es/tsamap/CreateTimeStampWS</Value>
+    </Setting>
+    <Setting Name="VerifyTimeStampBinding" Type="(Web Service URL)" Scope="Application">
+      <Value Profile="(Default)">https://tsafirma.redsara.es/tsamap/VerifyTimeStampWS</Value>
+    </Setting>
+    <Setting Name="RenewTimeStampBinding" Type="(Web Service URL)" Scope="Application">
+      <Value Profile="(Default)">https://tsafirma.redsara.es/tsamap/RenewTimeStampWS</Value>
+    </Setting>
+    <Setting Name="DSSAfirmaVerifyBinding" Type="(Web Service URL)" Scope="Application">
+      <Value Profile="(Default)">https://afirma.redsara.es/afirmaws/services/DSSAfirmaVerify</Value>
+    </Setting>
+    <Setting Name="DSSAfirmaVerifyCertificateBinding" Type="(Web Service URL)" Scope="Application">
+      <Value Profile="(Default)">https://afirma.redsara.es/afirmaws/services/DSSAfirmaVerifyCertificate</Value>
+    </Setting>
+    <Setting Name="SignatureMethod" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">http://www.w3.org/2001/04/xmldsig-more#rsa-sha256</Value>
+    </Setting>
+    <Setting Name="CheckResponseSignature" Type="System.Boolean" Scope="Application">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>

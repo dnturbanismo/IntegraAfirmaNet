@@ -12,11 +12,10 @@ using System.Threading.Tasks;
 namespace IntegraAfirmaNet.SignatureFramework
 {
     [System.ComponentModel.DesignerCategoryAttribute("code")]
-    public abstract class AfirmaBaseSoapClient : WebServicesClientProtocol
+    public abstract class BaseSoapClient : WebServicesClientProtocol
     {
-        public AfirmaBaseSoapClient(string url, Identity identity, X509Certificate2 serverCert)
+        public BaseSoapClient(Identity identity, X509Certificate2 serverCert)
         {
-            this.Url = url;
             Policy policy = new Policy();
             policy.Assertions.Add(identity.GetPolicyAssertion());
             policy.Assertions.Add(new AfirmaResponseAssertion(serverCert));
