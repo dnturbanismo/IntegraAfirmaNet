@@ -39,10 +39,9 @@ namespace IntegraAfirmaNet.Test
 
             Identity identity = new Identity(new X509Certificate2(_certPath, _password), _appId);
 
-//            _afirmaService = new AfirmaService(identity,
-//                new X509Certificate2(ObtenerRecurso("IntegraAfirmaNet.Test.Certificados.SGAD_SE.cer")));
-
-            _afirmaService = new AfirmaService(identity);
+            // Se establece el certificado con el cual deben ir firmadas las respuestas del servidor
+            _afirmaService = new AfirmaService(identity,
+                new X509Certificate2(ObtenerRecurso("IntegraAfirmaNet.Test.Certificados.SGAD_SE.cer")));
         }
 
         [TestMethod]
